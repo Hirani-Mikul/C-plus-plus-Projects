@@ -1,0 +1,145 @@
+//if (DoCircleOverlaps(b.GetPos(), target.GetPos(), b.GetRadius(), target.GetRadius()))
+//{
+//	vecCollidingPairs.push_back({ &b, &target });
+//
+//	// Calculate the distance between two balls PYTHAGORUS THEOREM
+//
+//	float fDistance = sqrtf((b.GetPos().x - target.GetPos().x) * (b.GetPos().x - target.GetPos().x) + (b.GetPos().y - target.GetPos().y) * (b.GetPos().y - target.GetPos().y));
+//
+//	float fOverlap = 0.5f * (fDistance - b.GetRadius() - target.GetRadius());
+//
+//	// Displace current ball
+//	float cx = fOverlap * (b.GetPos().x - target.GetPos().x) / fDistance;
+//	float cy = fOverlap * (b.GetPos().y - target.GetPos().y) / fDistance;
+//	b.SetPos(b.GetPos() -= { cx, cy });
+//
+//	// Displace target ball
+//	float tx = fOverlap * (b.GetPos().x - target.GetPos().x) / fDistance;
+//	float ty = fOverlap * (b.GetPos().y - target.GetPos().y) / fDistance;
+//	target.SetPos(target.GetPos() += { tx, ty });
+//}
+
+// DYNAMIC COLLISION
+
+
+//for (auto c : vecCollidingPairs)
+//{
+//	Ball* b1 = c.first;
+//	Ball* b2 = c.second;
+//
+//	// Distance between balls
+//
+//	olc::vf2d pb1 = b1->GetPos();
+//	olc::vf2d pb2 = b2->GetPos();
+//
+//	olc::vf2d vb1 = b1->GetVelocity();
+//	olc::vf2d vb2 = b2->GetVelocity();
+//
+//	float mb1 = b1->GetMass();
+//	float mb2 = b2->GetMass();
+//
+//	float fDistance = Dist(pb1, pb2);
+//
+//	// Normal
+//	float nx = (pb2.x - pb1.x) / fDistance;
+//	float ny = (pb2.y - pb1.y) / fDistance;
+//
+//	olc::vf2d normal = (pb2 - pb1) / fDistance;
+//
+//	// Tangent
+//	float tx = -ny;
+//	float ty = nx;
+//	olc::vf2d tangent = { -normal.y, normal.x };
+//
+//	// Dot product tangent
+//	float dpTan1 = vb1.x * tx + vb1.y * ty;
+//	float dpTan2 = vb2.x * tx + vb2.y * ty;
+//
+//	float dpTan12 = vb1.dot(tangent);
+//	float dpTan21 = vb2.dot(tangent);
+//
+//	// Dot product normal
+//	float dpNorm1 = vb1.x * nx + vb1.y * ny;
+//	float dpNorm2 = vb2.x * nx + vb2.y * ny;
+//
+//	// Conservation of momnetum in 1D
+//
+//	float m1 = (dpNorm1 * (mb1 - mb2) + 2.0f * mb2 * dpNorm2) / (mb1 + mb2);
+//
+//	float m2 = (dpNorm2 * (mb2 - mb1) + 2.0f * mb1 * dpNorm1) / (mb1 + mb2);
+//
+//
+//	b1->SetVelocity({ tx * dpTan1 + nx * m1, ty * dpTan1 + ny * m1 });
+//	if (!b2->bIsStatic)
+//		b2->SetVelocity({ tx * dpTan2 + nx * m2, ty * dpTan2 + ny * m2 });
+//	else b2->SetVelocity({ 0.0f, 0.0f });
+//}
+
+// DYNAMIC COLLISION PART 2
+
+// Working out dynamic collisions
+		for (auto c : vecCollidingPairs)
+		{
+			Ball* b1 = c.first;
+			Ball* b2 = c.second;
+
+			// Distance between balls
+
+			olc::vf2d pb1 = b1->GetPos();
+			olc::vf2d pb2 = b2->GetPos();
+
+			olc::vf2d vb1 = b1->GetVelocity();
+			olc::vf2d vb2 = b2->GetVelocity();
+
+			float mb1 = b1->GetMass();
+			float mb2 = b2->GetMass();
+
+			float fDistance = Dist(pb1, pb2);
+
+			// Normal
+			olc::vf2d normal = (pb2 - pb1) / fDistance;
+
+			// Tangent
+			olc::vf2d tangent = { -normal.y, normal.x };
+
+			// Dot product tangent
+
+			float dpTan1 = vb1.dot(tangent);
+			float dpTan2 = vb2.dot(tangent);
+
+			// Dot product normal
+			float dpNorm1 = vb1.dot(normal);
+			float dpNorm2 = vb2.dot(normal);
+
+			// Conservation of momnetum in 1D
+
+			float m1 = ( dpNorm1 * (mb1 - mb2) + 2.0f * mb2 * dpNorm2) / (mb1 + mb2);
+
+			float m2 = (dpNorm2 * (mb2 - mb1) + 2.0f * mb1 * dpNorm1) / (mb1 + mb2);
+
+			//olc::vf2d vel1 = tangent * dpTan1 + normal * m1;
+			//olc::vf2d vel2 = tangent * dpTan2 + normal * m2;
+
+			olc::vf2d k = vb1 - vb2;
+			float p = 2.0 * (normal.dot(k)) / (mb1 + mb2);
+			//olc::vf2d newVel1 = { vb1.x - p * mb2 * normal.x, vb1.y - p * mb2 * normal.y };
+			float nofdsx = vb1.x - p * mb2 * normal.x;
+			float nofdsy = vb1.y - p * mb2 * normal.y;
+			// vb1 - normal * p * mb2;
+			olc::vf2d vel1 = vb1 - normal * p * mb2;
+			olc::vf2d vel2 = vb2 + normal * p * mb1;
+
+			// Wikipedia Version - Maths is smarter but same
+			//float kx = (b1->vx - b2->vx);
+			//float ky = (b1->vy - b2->vy);
+			//float p = 2.0 * (nx * kx + ny * ky) / (b1->mass + b2->mass);
+			//b1->vx = b1->vx - p * b2->mass * nx;
+			//b1->vy = b1->vy - p * b2->mass * ny;
+			//b2->vx = b2->vx + p * b1->mass * nx;
+			//b2->vy = b2->vy + p * b1->mass * ny;
+
+			b1->SetVelocity(vel1);
+			if (!b2->bIsStatic)
+				b2->SetVelocity(vel2);
+			else b2->SetVelocity({ 0.0f, 0.0f });
+		}
