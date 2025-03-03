@@ -1,0 +1,3 @@
+Program Started!
+Verifying printer: Microsoft XPS Document Writer
+Setting window closed!

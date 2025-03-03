@@ -1,0 +1,101 @@
+BOOL GetFirstLine(CONST CHAR* buffer)
+{
+	int index = 0;
+
+	// Find the first comma to know the size of the first line.
+	// Some random comparasion to exit out of loop. i < INFINITY could work.
+	for (int i = 0; i < 30; i++)
+	{
+		if (buffer[i] == ',')
+		{
+			index = i;
+			break;
+		}
+	}
+	// In valid file, position of comma cannot be greater than 30.
+	if (index == 0) return FALSE;
+
+	// The first value in the buffer before comman is the size of the entire first line.
+	// 
+	CHAR* chSizeOfFirstLine = new CHAR[index + 1];
+	memcpy(chSizeOfFirstLine, buffer, index);
+	chSizeOfFirstLine[index] = '\0';
+
+	INT nSizeOfFirstLine = charToInt(chSizeOfFirstLine);
+	CHAR* chFirstLine = new CHAR[nSizeOfFirstLine + 1];
+	memcpy(chFirstLine, (buffer + index + 1), nSizeOfFirstLine);
+	chFirstLine[nSizeOfFirstLine] = '\0';
+
+	std::cout << "sizeOfFirstLine: " << chSizeOfFirstLine << std::endl;
+	std::cout << "FirstLine: " << chFirstLine << std::endl;
+
+	
+	int valPos[10] = { -1 };
+	int posIndex = 0;
+	index = 0;
+
+	for (int i = 0; i < nSizeOfFirstLine; i++)
+	{
+		if (chFirstLine[i] == ',')
+		{
+			CHAR chNum[4] = { 0 };
+			memcpy(chNum, chFirstLine + index, (i - index));
+			chNum[(i - index)] = '\0';
+			index = (i + 1);
+			valPos[posIndex] = charToInt(chNum);
+			posIndex++;
+		}
+	}
+
+
+	delete[] chSizeOfFirstLine;
+	delete[] chFirstLine;
+
+	return TRUE;
+}
+
+
+
+
+BOOL ParseSetting(CONST CHAR* buffer)
+{
+	if (buffer == NULL) return FALSE;
+
+	std::cout << "\n\n\n";
+
+	const char* p = std::strchr(buffer, '\n');
+
+	if (p)
+	{
+		// Calculate the position by subtracting pointers.
+		std::ptrdiff_t position = p - buffer;
+		std::wcout << "First position of \'\\n\': " << position << std::endl;
+		std::string firstLine;
+		firstLine.assign(buffer, buffer + position);
+		std::cout << "The first line is: " << firstLine << std::endl;
+
+		auto count = std::count_if(firstLine.begin(), firstLine.end(), [](auto n) { return n == ','; });
+
+		int *pos = new int[count];
+		for (int i = 0; i < count; i++)
+		{
+			auto firstChar = firstLine.find_first_of(',');
+			std::string strPos = firstLine.substr(0, firstChar);
+			firstLine = firstLine.substr(firstChar + 1, firstLine.size() - firstChar);
+			
+			pos[i] = std::stoi(strPos);
+			
+		}
+
+		std::cout << "Positions: [";
+		for (int i = 0; i < count; i++)
+		{
+			std::cout << pos[i] << ",";
+		}
+		std::cout << "]\n";
+
+		delete[] pos;
+	}
+
+	return TRUE;
+}

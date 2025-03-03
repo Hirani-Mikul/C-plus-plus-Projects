@@ -1,0 +1,14 @@
+[{
+    "Pending" : [],
+    "Rented" : [],
+    "Returns" : [{
+        "Count" : 1,
+        "Model" : "Tesla",
+        "Vehicle_Id" : 3
+      }, {
+        "Count" : 100,
+        "Model" : "Matatu",
+        "Vehicle_Id" : 7
+      }],
+    "User_Id" : 7
+  }]

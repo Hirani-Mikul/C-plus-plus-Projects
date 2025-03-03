@@ -1,0 +1,4 @@
+input_directory = .\IN
+output_directory = .\OUT\
+default_printer = Microsoft XPS Document Writer
+waiting_time = 3000

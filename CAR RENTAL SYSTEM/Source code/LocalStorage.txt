@@ -1,0 +1,6 @@
+{
+  "Admin_Id_Counter" : 3,
+  "CurrentUser_Id" : 0,
+  "User_Id_Counter" : 11,
+  "isAdmin" : false
+}

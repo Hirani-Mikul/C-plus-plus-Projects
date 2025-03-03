@@ -1,0 +1,249 @@
+#include <Windows.h>
+#include <atlstr.h>
+#include <tchar.h>
+#include <WinUser.h>
+#include <iostream>
+#include <unordered_map>
+
+class DirectoryWatcher
+{
+public:
+	DirectoryWatcher()
+	{
+		m_hDirectory = INVALID_HANDLE_VALUE;
+		m_Overlapped = { 0 };
+	}
+
+	~DirectoryWatcher()
+	{
+		if (!paths_.empty())
+		{
+
+		}
+	}
+public:
+
+	void initiate()
+	{
+
+	}
+
+private:
+	struct ArrayHasher
+	{
+		std::size_t operator()(const TCHAR* path) const {
+			std::size_t h = 0;
+
+			int i = 0;
+
+			while (path[i] != '\0')
+			{
+				h ^= std::hash<TCHAR>{}(path[i]) + 0x9e3779b9 + (h << 6) + (h >> 2);
+			}
+			return h;
+		}
+	};
+
+	bool m_contains(TCHAR* key) {
+
+		auto el = paths_.find(key);
+		return el != paths_.end();
+	}
+
+private:
+
+	std::unordered_map<TCHAR*, FILETIME, ArrayHasher> paths_;
+	TCHAR m_PathToWatch[_MAX_PATH] = _T("C:\\Users\\HIRANI\\Desktop\\Windows API\\ASAP APP\\IN\0");
+
+	HANDLE m_hDirectory;
+	OVERLAPPED m_Overlapped;
+};
+
+
+struct ArrayHasher
+{
+	std::size_t operator()(const TCHAR* path) const {
+		std::size_t h = 0;
+
+		int i = 0;
+
+		while (path[i] != '\0')
+		{
+			h ^= std::hash<TCHAR>{}(path[i]) + 0x9e3779b9 + (h << 6) + (h >> 2);
+
+			i++;
+		}
+
+		std::wcout << path << "->" << h << "\n";
+		return h;
+	}
+};
+
+struct ArrayHasher2
+{
+	std::size_t operator()(const char* path) const {
+		std::size_t h = 0;
+
+		int i = 0;
+
+		while (path[i] != '\0')
+		{
+			h ^= std::hash<char>{}(path[i]) + 0x9e3779b9 + (h << 6) + (h >> 2);
+
+			i++;
+		}
+
+		std::cout << path << "->" << h << "\n";
+		return h;
+	}
+};
+
+struct KeyComparator
+{
+	bool operator()(const char* k1, const char* k2) const
+	{
+		return (*k1 == *k2);
+	}
+};
+
+bool contains(const std::unordered_map<TCHAR*, int, ArrayHasher>& num, TCHAR* key)
+{
+	auto el = num.find(key);
+	return el != num.end();
+}
+bool contains( std::unordered_map<char*, int, ArrayHasher2, KeyComparator>& num, char* key)
+{
+	auto el = num.find(key);
+	return el != num.end();
+}
+bool contains(std::unordered_map<std::string, int>& num, std::string key)
+{
+	auto el = num.find(key);
+	return el != num.end();
+}
+
+void doNothing()
+{
+	//TCHAR val[6] = TEXT("Mikul");
+	//TCHAR val2[7] = TEXT("Bhavik");
+
+	std::string val = "Mikul";
+	std::string val2 = "Bhavik";
+
+
+	std::cout << "Val: " << &val << std::endl;
+	std::cout << "Val2: " << &val2 << std::endl;
+
+	std::cout << "doNothing ended\n";
+}
+
+int _tmain(int argc, TCHAR* argv[])
+{
+	/*TCHAR* val = new TCHAR[5];
+	TCHAR* val2 = new TCHAR[5];*/
+
+	doNothing();
+
+	return 0;
+	/*std::unordered_map<int, char> num;
+
+	num[1] = 'M';
+	num[2] = 'I';
+	num[3] = 'K';
+	num[4] = 'U';
+	num[1] = 'L';
+
+
+	for (auto& el : num)
+	{
+		std::wcout << el.first << ": " << el.second << "\n";
+	}
+
+
+	int tofind = 6;
+
+	std::wcout << "Contains " << tofind << ": " << std::boolalpha << contains(num, tofind) << "\n";
+
+
+	std::wcout << "Program ended\n";
+	return 0;*/
+
+	//std::unordered_map<TCHAR*, int, ArrayHasher> map;
+	std::unordered_map<char*, int, ArrayHasher2, KeyComparator> map;
+
+	//TCHAR name[6] = TEXT("Mikul");
+	//TCHAR name2[7] = TEXT("Bhavik");
+	//TCHAR name3[6] = TEXT("Mikul");
+
+	char* name = new char[6];
+	char* name2 = new char[7];
+	char* name3 = new char[6];
+
+	memcpy(name, "Mikul", 5);
+	name[5] = '\0';
+	memcpy(name2, "Bhavik", 6);
+	name2[6] = '\0';
+	memcpy(name3, "Mikul", 5);
+	name3[5] = '\0';
+
+	//CHAR* name = new CHAR[6];
+
+	//strcpy(name, "Mikul");
+
+	//TCHAR* name3 = name;
+
+	map[name] = 10;
+	map[name2] = 20;
+	//map[name3] = 30;
+	//map[name3] = 30;
+
+	//std::pair<TCHAR*, int> val1{ name, 1 };
+	//std::pair<TCHAR*, int> val2{ name2, 2 };
+	//std::pair<TCHAR*, int> val3{name3, 3};
+
+	//map.insert(val1);
+	//map.insert(val2);
+	//map.insert(val3);
+
+
+	//std::wcout << "Mikul: " << (*map.begin()).second << "\n";
+	//std::wcout << "Mikul: " << (map.begin()->first) << "\n";
+	//std::wcout << "Bhavik: " << (map[name2]) << "\n";
+
+	std::cout << "Original: \n\n";
+
+	for (auto el : map)
+	{
+		std::wcout << el.first << ": " << el.second << "\n";
+	}
+
+	//delete[]((*(map.begin())).first);
+
+	std::cout << "\n\n\n\nAfter: \n\n";
+
+	for (auto el : map)
+	{
+		std::wcout << el.first << ": " << el.second << "\n";
+	}
+
+	//auto original = &name;
+	//auto dup = ((*(map.begin())).first);
+	//auto dup = (&((*(map.begin())).first));
+
+	//std::cout << "Original pointer: " << original << std::endl;
+	//std::cout << "Map pointer: " << dup << std::endl;
+	//std::wcout << "Contains " << name3 << ": " << std::boolalpha << contains(map, name3) << "\n";
+
+
+	/*delete[] name;
+	delete[] name2;
+	delete[] name3;*/
+
+	for (auto el : map)
+	{
+		delete[] el.first;
+	}
+
+	std::wcout << "Program ended\n";
+	return 0;
+}

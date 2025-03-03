@@ -1,0 +1,266 @@
+#pragma once
+//#include <iostream>
+//#include <vector>
+//#include <cctype>
+//#include <string>
+//#include <iterator>
+//#include <algorithm>
+#include "Utils.h"
+
+template<typename Container>
+void WriteToCout( const Container& container, const char* delimiter = " " )
+{
+	std::copy( container.begin(), container.end(), std::ostream_iterator<Container::value_type>(std::cout, delimiter) );
+}
+
+void Part1(), Part2(), Part3(), Part4(), Part5(), Part6(), Part7(), Part8();
+
+int main()
+{
+	Part8();
+
+	std::cin.get();
+}
+
+
+void Part8()
+{
+	// REMOVING ELEMENTS THAT ARE SAME IN CONSECUTIVE ORDER
+	/*
+		IF THE DUPLICATE IS NOT IN CONSECUTIVE ORDER, IT WILL NOT REMOVE
+		
+		EXAMPLE:
+
+		std::vector<std::string> b = { "0", "1", "1", "2" , "3", "0" , "4" , "5" , "6" , "7", "7" , "8" , "9", "0" , "10" };
+
+		"0" WILL NOT BE REMOVED
+
+		SOLUTION:
+
+		FIRST SORT THEM IN ORDER THEN REMOVE
+	*/
+
+	std::vector<std::string> b = { "0", "1", "1", "2" , "3" , "4" , "5" , "6" , "7", "7" , "8" , "9" , "10" };
+
+	std::vector<int> c = { 0, 1, 2, 3, 4, 4, 5, 5, 6, 7, 8, 9, 9, 10 };
+
+
+	WriteToCout(b);
+	std::cout << std::endl;
+	std::cout << std::endl;
+	std::cout << "C: ";
+	WriteToCout(c);
+	std::cout << std::endl;
+	std::cout << std::endl;
+
+	// Replace
+
+	c.erase(std::unique(c.begin(), c.end()), c.end());
+	b.erase( std::unique(b.begin(), b.end()), b.end() );
+
+	std::cout << "After Removing Same Element" << std::endl;
+	std::cout << "B: ";
+	WriteToCout(b);
+	std::cout << std::endl;
+	std::cout << std::endl;
+	std::cout << "C: ";
+	WriteToCout(c);
+	std::cout << std::endl;
+	std::cout << std::endl;
+}
+
+void Part7()
+{
+	// REPLACING ELEMENTS FROM CONTAINER WITH THE VALUE PASSED IF CONDITION IS MET
+	std::vector<std::string> a = { "Zero", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten" };
+	std::vector<std::string> b = { "0", "1", "2" , "3" , "4" , "5" , "6" , "7" , "8" , "9" , "10" };
+	std::vector<int> c = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+
+
+	std::cout << "A: ";
+	WriteToCout(a);
+	std::cout << std::endl;
+	std::cout << std::endl;
+	std::cout << "B: ";
+	WriteToCout(b);
+	std::cout << std::endl;
+	std::cout << std::endl;
+	std::cout << "C: ";
+	WriteToCout(c);
+	std::cout << std::endl;
+	std::cout << std::endl;
+
+	// Replace
+
+	std::replace_if(c.begin(), c.end(), [](const int& num) { return num % 2 == 0; }, 0);
+
+	std::cout << "After Replacing" << std::endl;
+	std::cout << "A: ";
+	WriteToCout(a);
+	std::cout << std::endl;
+	std::cout << std::endl;
+	std::cout << "B: ";
+	WriteToCout(b);
+	std::cout << std::endl;
+	std::cout << std::endl;
+	std::cout << "C: ";
+	WriteToCout(c);
+	std::cout << std::endl;
+	std::cout << std::endl;
+}
+
+void Part6()
+{
+	// REMOVING ELEMENTS FROM CONTAINER IF CONDITION IS MET
+	std::vector<std::string> a = { "Zero", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten" };
+	std::vector<std::string> b = { "0", "1", "2" , "3" , "4" , "5" , "6" , "7" , "8" , "9" , "10" };
+	std::vector<int> c = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+
+
+	std::cout << "A: ";
+	WriteToCout(a);
+	std::cout << std::endl;
+	std::cout << std::endl;
+	std::cout << "B: ";
+	WriteToCout(b);
+	std::cout << std::endl;
+	std::cout << std::endl;
+	std::cout << "C: ";
+	WriteToCout(c);
+	std::cout << std::endl;
+	std::cout << std::endl;
+
+	// Swap
+	
+	a.erase( 
+		std::remove_if(a.begin(), a.end(), [](const std::string& str) { return std::count(str.begin(), str.end(), 'n') == 0; }), a.end()
+	);
+
+	c.erase(
+		std::remove_if(c.begin(), c.end(), [](const int num) { return num % 2 != 0;  }), c.end()
+	);
+	
+	
+	std::cout << "After Removing" << std::endl;
+	std::cout << "A: ";
+	WriteToCout(a);
+	std::cout << std::endl;
+	std::cout << std::endl;
+	std::cout << "B: ";
+	WriteToCout(b);
+	std::cout << std::endl;
+	std::cout << std::endl;
+	std::cout << "C: ";
+	WriteToCout(c);
+	std::cout << std::endl;
+	std::cout << std::endl;
+}
+
+void Part5()
+{
+	// SWAPING TWO RANGES OF ELEMENTS
+	std::vector<std::string> a = { "Zero", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten" };
+	std::vector<std::string> b = { "0", "1", "2" , "3" , "4" , "5" , "6" , "7" , "8" , "9" , "10" };
+
+	std::cout << "A: ";
+	WriteToCout(a);
+	std::cout << std::endl;
+	std::cout << std::endl;
+	std::cout << "B: ";
+	WriteToCout(b);
+	std::cout << std::endl;
+	std::cout << std::endl;
+
+	// Swap
+	std::cout << "After Swapping" << std::endl;
+	std::swap_ranges( a.begin(), a.end(), b.begin() );
+	std::cout << "A: ";
+	WriteToCout(a);
+	std::cout << std::endl;
+	std::cout << std::endl;
+	std::cout << "B: ";
+	WriteToCout(b);
+	std::cout << std::endl;
+	std::cout << std::endl;
+}
+
+
+void Part4()
+{
+	// MOVING ELEMENTS FROM ONE CONTAINER TO ANOTHER BASED ON CONDITION
+	std::vector<std::string> a = { "Zero", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten" };
+	std::vector<std::string> b = { "0", "1", "2" , "3" , "4" , "5" , "6" , "7" , "8" , "9" , "10" };
+
+	std::vector<std::string> c;
+
+	std::copy_if(std::make_move_iterator(a.begin()), std::make_move_iterator(a.end()), std::back_inserter(c), [](const std::string& str) { return str.size() > 3; });
+
+	WriteToCout(a, " | ");
+	std::cout << std::endl;
+	std::cout << std::endl;
+	WriteToCout(c);
+
+}
+
+void Part3()
+{
+	// MOVING ELEMENTS FROM ONE CONTAINER TO ANOTHER
+	std::vector<std::string> a = { "Zero", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten" };
+	std::vector<std::string> b = { "0", "1", "2" , "3" , "4" , "5" , "6" , "7" , "8" , "9" , "10" };
+
+	std::vector<std::string> c;
+	std::move(a.begin(), a.begin() + 5, std::back_inserter(c));
+	//std::move(a.begin(), a.begin() + 6, b.begin());
+
+	WriteToCout(a, " | ");
+	std::cout << std::endl;
+	WriteToCout(c);
+}
+
+void Part2()
+{
+	// COPYING ELEMENTS IF THE IS MET THE CONDITION
+
+	std::string a = "WhaT iS YouR name PleAsE?";
+	std::string b = "I don'T KNow mY nAmE.";
+
+	std::string c; // Upper case
+	std::copy_if(a.begin(), a.end(), std::back_inserter(c), std::isupper);
+	c.append("----");
+	std::copy_if(b.begin(), b.end(), std::back_inserter(c), std::isupper);
+	
+	WriteToCout(c);
+
+	
+}
+
+void Part1()
+{
+	// Copying elements between certain range
+	std::vector<std::string> a = { "Zero", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten" };
+	std::vector<std::string> b = { "0", "1", "2" , "3" , "4" , "5" , "6" , "7" , "8" , "9" , "10" };
+
+
+	std::vector<std::string> c;
+	std::vector<std::string> d = { "0", "1", "2" , "3" , "4" , "5" , "6" , "7" , "8" , "9" , "10" };
+	//std::copy_n(a.begin(), 9, c.begin());
+	std::copy_n(a.begin(), a.size(), std::back_inserter(c));
+
+	// Write initial state
+	//WriteToCout(a);
+	//std::cout << std::endl;
+	//WriteToCout( b );
+	//std::cout << std::endl;
+
+	WriteToCout(c);
+	std::cout << std::endl;
+
+
+
+	//std::copy( a.begin() + 3, a.begin() + 7, b.begin() + 6);
+
+	//WriteToCout(b);
+	//for (auto& i : c)
+	//	std::cout << i << std::endl;
+
+}

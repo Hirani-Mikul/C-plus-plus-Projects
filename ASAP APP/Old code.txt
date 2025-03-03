@@ -1,0 +1,58 @@
+DWORD WINAPI MonitorDirectory(LPVOID lpParam)
+{
+	//LPTSTR lpDir = LPTSTR("C:\\Users\\HIRANI\\Desktop\\Windows API\\ASAP APP\\IN");
+	TCHAR path[_MAX_PATH] = _T("C:\\Users\\HIRANI\\Desktop\\Windows API\\ASAP APP\\IN");
+	LPTSTR lpDir = path;
+	DWORD dwWaitStatus;
+	TCHAR lpDrive[4];
+	TCHAR lpFile[_MAX_FNAME];
+	TCHAR lpExt[_MAX_EXT];
+
+
+	_tsplitpath_s(lpDir, lpDrive, 4, NULL, 0, lpFile, _MAX_FNAME, lpExt, _MAX_EXT);
+	
+	lpDrive[2] = (TCHAR)'\\';
+	lpDrive[3] = (TCHAR)'\0';
+
+	dwChangeHandle[0] = FindFirstChangeNotification(
+		lpDir, // Directory to watch
+		FALSE, // Do not watch subtree
+		FILE_NOTIFY_CHANGE_FILE_NAME // Watch file name changes
+	);
+
+	if (dwChangeHandle[0] == INVALID_HANDLE_VALUE || dwChangeHandle[1] == INVALID_HANDLE_VALUE)
+	{
+		ExitProcess(GetLastError());
+	}
+
+	while (TRUE)
+	{
+		// Wait for notification
+
+		dwWaitStatus = WaitForMultipleObjects(2, dwChangeHandle, FALSE, INFINITE);
+		
+
+		switch (dwWaitStatus)
+		{
+		case WAIT_OBJECT_0:
+
+			// A file was created, renamed, or deleted in the directory.
+			RefreshDirectory(lpDir);
+
+			break;
+		case WAIT_OBJECT_0 + 1:
+			message_state = _T("\r\nStopped waiting.");
+			return (DWORD)dwWaitStatus;
+			break;
+		case WAIT_TIMEOUT:
+			// Will never happen
+			break;
+		default:
+			// Unhandled dwWaitStatus
+			message_state = _T("\r\nExiting thread function.");
+
+			break;
+		}
+	}
+
+}

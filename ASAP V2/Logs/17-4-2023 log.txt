@@ -1,0 +1,38 @@
+18:44:03-> Success: Doc.pdf
+18:44:03-> Success: Polygon.h
+18:44:03-> Success: Shape.cpp
+18:44:03-> Success: Shape.h
+18:44:03-> Success: Trial.txt
+18:44:47-> Success: Doc.pdf
+18:44:56-> Success: Shape.h
+18:44:56-> Success: Trial.txt
+18:45:05-> Success: Doc.pdf
+18:45:20-> Success: Doc.pdf
+18:50:26-> Success: Doc.pdf
+18:50:26-> Success: Polygon.h
+18:50:26-> Success: Shape.cpp
+18:50:26-> Success: Shape.h
+18:50:26-> Success: Trial.txt
+18:50:32-> Success: Trial.txt
+18:50:38-> Success: Doc.pdf
+18:51:02-> Success: Doc.pdf
+18:51:02-> Success: Polygon.h
+18:51:03-> Success: Shape.cpp
+18:51:03-> Success: Shape.h
+18:51:03-> Success: Trial.txt
+19:01:19-> Success: Doc.pdf
+19:01:19-> Failed - not a pdf file: Polygon.h
+19:01:19-> Failed - not a pdf file: Shape.cpp
+19:01:19-> Failed - not a pdf file: Shape.h
+19:01:19-> Failed - not a pdf file: Trial.txt
+19:04:15-> Success: Doc.pdf
+19:05:03-> Failed - not a pdf file: Drawable.cpp
+19:05:03-> Failed - not a pdf file: Drawable.h
+19:05:03-> Failed - not a pdf file: Entity.cpp
+19:05:03-> Failed - not a pdf file: Entity.h
+19:05:15-> Failed - not a pdf file: config.txt
+19:05:15-> Failed - not a pdf file: CoordinateTransformer.cpp
+19:05:15-> Failed - not a pdf file: CoordinateTransformer.h
+19:05:15-> Success: Doc.pdf
+19:05:45-> Success: Doc.pdf
+19:05:45-> Success: Files.pdf

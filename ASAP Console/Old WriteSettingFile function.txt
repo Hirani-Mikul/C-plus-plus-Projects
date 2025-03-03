@@ -1,0 +1,300 @@
+
+--------------------------------> FIRST METHOD <------------------------------------
+BOOL WriteAppSettings(CONST AppSetting& settings)
+{
+	// Write the first line.
+	// Length of each values in integer.
+	size_t nInputPathSize = strlen(settings.input_directory);
+	size_t nOutputPathSize = strlen(settings.output_directory);
+	size_t nErrorPathSize = strlen(settings.error_directory);
+	size_t nCurrentPrinterSize = strlen(settings.current_printer);
+	INT    nWaitingTimeSize = GetNumLength(settings.waiting_time);
+	
+	// Length of size of each values.
+	INT nChInputPathLen = GetNumLength(nInputPathSize);
+	INT nChOutputPathLen = GetNumLength(nOutputPathSize);
+	INT nChErrorPathLen = GetNumLength(nErrorPathSize);
+	INT nChCurrentPrinterLen = GetNumLength(nCurrentPrinterSize);
+	INT nChWaitingTimeLen = GetNumLength(nWaitingTimeSize);
+
+	INT nSizeOfFirstLine = 0;
+	nSizeOfFirstLine += nChInputPathLen;
+	nSizeOfFirstLine += nChOutputPathLen;
+	nSizeOfFirstLine += nChErrorPathLen;
+	nSizeOfFirstLine += nChCurrentPrinterLen;
+	nSizeOfFirstLine += nChWaitingTimeLen;
+
+	// Add 5 for each comma after every character length of values.
+	nSizeOfFirstLine += 5;
+	INT nChSizeOfFirstLine = GetNumLength(nSizeOfFirstLine);
+	nSizeOfFirstLine += nChSizeOfFirstLine + 1; // 1 for comma
+	nSizeOfFirstLine += 2; // 2 for \n\0
+	nSizeOfFirstLine += 10; // 10 for constant bytes for names
+	nSizeOfFirstLine += 5; // 5 for another commas.
+
+	CHAR* chFirstLine = new CHAR[nSizeOfFirstLine];
+
+	INT nBufferIndex = 0;
+
+	// Get the interger converted to char.
+	
+	// chSizeOfFirstLineLen does not include: size of itself plus it's comma plus 2 for terminating and carriage return.
+	CONST CHAR* chSizeOfFirstLineLen = intToChar((nSizeOfFirstLine - nChSizeOfFirstLine - 1 - 2));
+	
+	CONST CHAR* chInputPathLen = intToChar(nInputPathSize);
+	CONST CHAR* chOutputPathLen = intToChar(nOutputPathSize);
+	CONST CHAR* chErrorPathLen = intToChar(nErrorPathSize);
+	CONST CHAR* chCurrentPrinterLen = intToChar(nCurrentPrinterSize);
+	CONST CHAR* chWaitingTimeLen = intToChar(nWaitingTimeSize);
+	CONST CHAR Comma = ',';
+
+	auto WriteToBuffer = [&](CONST CHAR* chText, INT nTextLen)
+	{
+		memcpy(chFirstLine + nBufferIndex, chText, nTextLen);
+		nBufferIndex += nTextLen;
+		memcpy(chFirstLine + nBufferIndex, &Comma, 1);
+		nBufferIndex += 1;
+	};
+
+	// Write total length of first line + comma.
+	memcpy(chFirstLine + nBufferIndex, chSizeOfFirstLineLen, nChSizeOfFirstLine);
+	nBufferIndex += nChSizeOfFirstLine;
+	memcpy(chFirstLine + nBufferIndex, &Comma, 1);
+	nBufferIndex += 1;
+
+	// Write total length of input path name + comma + input path value + comma.
+	memcpy(chFirstLine + nBufferIndex, "15", 2);
+	nBufferIndex += 2;
+	memcpy(chFirstLine + nBufferIndex, &Comma, 1);
+	nBufferIndex += 1;
+
+	memcpy(chFirstLine + nBufferIndex, chInputPathLen, nChInputPathLen);
+	nBufferIndex += nChInputPathLen;
+	memcpy(chFirstLine + nBufferIndex, &Comma, 1);
+	nBufferIndex += 1;
+
+	// Write total length of output path name + comma + output path value + comma.
+	memcpy(chFirstLine + nBufferIndex, "16", 2);
+	nBufferIndex += 2;
+	memcpy(chFirstLine + nBufferIndex, &Comma, 1);
+	nBufferIndex += 1;
+
+	memcpy(chFirstLine + nBufferIndex, chOutputPathLen, nChOutputPathLen);
+	nBufferIndex += nChOutputPathLen;
+	memcpy(chFirstLine + nBufferIndex, &Comma, 1);
+	nBufferIndex += 1;
+
+	// Write total length of error path name + comma + error path value + comma.
+	memcpy(chFirstLine + nBufferIndex, "15", 2);
+	nBufferIndex += 2;
+	memcpy(chFirstLine + nBufferIndex, &Comma, 1);
+	nBufferIndex += 1;
+
+	memcpy(chFirstLine + nBufferIndex, chErrorPathLen, nChErrorPathLen);
+	nBufferIndex += nChErrorPathLen;
+	memcpy(chFirstLine + nBufferIndex, &Comma, 1);
+	nBufferIndex += 1;
+
+	// Write total length of current printer name + comma + current printer value + comma.
+	memcpy(chFirstLine + nBufferIndex, "15", 2);
+	nBufferIndex += 2;
+	memcpy(chFirstLine + nBufferIndex, &Comma, 1);
+	nBufferIndex += 1;
+
+	memcpy(chFirstLine + nBufferIndex, chCurrentPrinterLen, nChCurrentPrinterLen);
+	nBufferIndex += nChCurrentPrinterLen;
+	memcpy(chFirstLine + nBufferIndex, &Comma, 1);
+	nBufferIndex += 1;
+
+	// Write total length of waiting time name + comma + waiting time value + comma.
+	memcpy(chFirstLine + nBufferIndex, "12", 2);
+	nBufferIndex += 2;
+	memcpy(chFirstLine + nBufferIndex, &Comma, 1);
+	nBufferIndex += 1;
+
+	memcpy(chFirstLine + nBufferIndex, chWaitingTimeLen, nChWaitingTimeLen);
+	nBufferIndex += nChWaitingTimeLen;
+	memcpy(chFirstLine + nBufferIndex, &Comma, 1);
+	nBufferIndex += 1;
+
+	chFirstLine[nBufferIndex] = '\n';
+	chFirstLine[nBufferIndex + 1] = '\0';
+
+
+	std::cout << "\n\n\n========================================================\n\n\n";
+
+	std::cout << "chFirstLine: " << chFirstLine << std::endl;
+	std::cout << "Finished reading.\n";
+
+
+	delete[] chSizeOfFirstLineLen;
+	delete[] chInputPathLen;
+	delete[] chOutputPathLen;
+	delete[] chErrorPathLen;
+	delete[] chCurrentPrinterLen;
+	delete[] chWaitingTimeLen;
+	
+
+
+
+	return TRUE;
+}
+
+
+
+
+
+--------------------------------> SECOND METHOD <------------------------------------
+
+
+BOOL WriteAppSettings(CONST AppSetting& settings)
+{
+	// Write the first line.
+	// Length of each values in integer.
+	size_t nInputPathSize = strlen(settings.input_directory);
+	size_t nOutputPathSize = strlen(settings.output_directory);
+	size_t nErrorPathSize = strlen(settings.error_directory);
+	size_t nCurrentPrinterSize = strlen(settings.current_printer);
+	INT    nWaitingTimeSize = GetNumLength(settings.waiting_time);
+	
+	// Length of size of each values.
+	INT nChInputPathLen = GetNumLength(nInputPathSize);
+	INT nChOutputPathLen = GetNumLength(nOutputPathSize);
+	INT nChErrorPathLen = GetNumLength(nErrorPathSize);
+	INT nChCurrentPrinterLen = GetNumLength(nCurrentPrinterSize);
+	INT nChWaitingTimeLen = GetNumLength(nWaitingTimeSize);
+
+	INT nSizeOfFirstLine = 0;
+	nSizeOfFirstLine += nChInputPathLen;
+	nSizeOfFirstLine += nChOutputPathLen;
+	nSizeOfFirstLine += nChErrorPathLen;
+	nSizeOfFirstLine += nChCurrentPrinterLen;
+	nSizeOfFirstLine += nChWaitingTimeLen;
+
+	// Add 5 for each comma after every character length of values.
+	nSizeOfFirstLine += 5;
+	INT nChSizeOfFirstLine = GetNumLength(nSizeOfFirstLine);
+	nSizeOfFirstLine += nChSizeOfFirstLine + 1; // 1 for comma
+	nSizeOfFirstLine += 2; // 2 for \n\0
+	nSizeOfFirstLine += 10; // 10 for constant bytes for names
+	nSizeOfFirstLine += 5; // 5 for another commas.
+
+
+	CHAR* chFirstLine = new CHAR[nSizeOfFirstLine];
+
+	INT nBufferIndex = 0;
+
+	// Get the interger converted to char.
+	
+	// Buffer to store the length in character instead of int. Plus one for terminating character. (4 + 1)
+	CHAR
+		chSizeOfFirstLineLen[5],
+		chInputPathLen[5],
+		chOutputPathLen[5],
+		chErrorPathLen[5],
+		chCurrentPrinterLen[5],
+		chWaitingTimeLen[5];
+
+	// chSizeOfFirstLineLen does not include: size of itself plus it's comma plus 2 for terminating and carriage return.
+	intToChar(chSizeOfFirstLineLen, (nSizeOfFirstLine - nChSizeOfFirstLine - 1 - 2));
+
+	intToChar(chInputPathLen, nInputPathSize);
+	intToChar(chOutputPathLen, nOutputPathSize);
+	intToChar(chErrorPathLen, nErrorPathSize);
+	intToChar(chCurrentPrinterLen, nCurrentPrinterSize);
+	intToChar(chWaitingTimeLen, nWaitingTimeSize);
+
+	CONST CHAR Comma = ',';
+
+	auto WriteToBuffer = [&](CONST CHAR* chText, INT nTextLen)
+	{
+		memcpy(chFirstLine + nBufferIndex, chText, nTextLen);
+		nBufferIndex += nTextLen;
+		memcpy(chFirstLine + nBufferIndex, &Comma, 1);
+		nBufferIndex += 1;
+	};
+
+	// Write total length of first line + comma.
+	WriteToBuffer(chSizeOfFirstLineLen, nChSizeOfFirstLine);
+
+	// Write total length of name + comma + value + comma.
+	// Input path.
+	WriteToBuffer("15", 2);
+	WriteToBuffer(chInputPathLen, nChInputPathLen);
+
+	// Output path.
+	WriteToBuffer("16", 2);
+	WriteToBuffer(chOutputPathLen, nChOutputPathLen);
+
+	// Error path.
+	WriteToBuffer("15", 2);
+	WriteToBuffer(chErrorPathLen, nChErrorPathLen);
+
+	// Current Printer.
+	WriteToBuffer("15", 2);
+	WriteToBuffer(chCurrentPrinterLen, nChCurrentPrinterLen);
+
+	// Waiting time.
+	WriteToBuffer("12", 2);
+	WriteToBuffer(chWaitingTimeLen, nChWaitingTimeLen);
+
+	chFirstLine[nBufferIndex] = '\n';
+	chFirstLine[nBufferIndex + 1] = '\0';
+
+
+	std::cout << "\n\n\n========================================================\n\n\n";
+
+	std::cout << "chFirstLine: " << chFirstLine << std::endl;
+
+
+	// Calculate the size in bytes of body.
+	// Length of all values + name + 2 spaces + equal character + \n
+
+	INT nBodySize = 0;
+	// First add lengths of all names i.e. length of input_directory plus length of output_directory and so on.
+	nBodySize += 15 + 16 + 15 + 15 + 12;
+	// Now add all commas, spaces, equal, and \n
+	nBodySize += (4 * 5);
+	// Now add lengths of all values i.e. length of value of input_directory and so on.
+	nBodySize +=
+		nInputPathSize + 
+		nOutputPathSize + 
+		nErrorPathSize + 
+		nCurrentPrinterSize + 
+		nWaitingTimeSize;
+
+	CHAR* chBodyBuffer = new CHAR[nBodySize + 1];
+
+	INT nBodyBufferIndex = 0;
+	CONST CHAR CarriageReturn = '\n';
+
+	auto WriteToBodyBuffer = [&](CONST CHAR* chName, CONST CHAR* chValue, INT nNameLen, INT nValueLen)
+	{
+		memcpy(chBodyBuffer + nBodyBufferIndex, chName, nNameLen);
+		nBodyBufferIndex += nNameLen;
+		memcpy(chBodyBuffer + nBodyBufferIndex, chValue, nValueLen);
+		nBodyBufferIndex += nValueLen;
+		memcpy(chBodyBuffer + nBodyBufferIndex, &CarriageReturn, 1);
+		nBodyBufferIndex += 1;
+	};
+
+	CHAR chWaitingTime[6];
+	intToChar(chWaitingTime, settings.waiting_time);
+
+	WriteToBodyBuffer("input_directory = ", settings.input_directory, 15 + 3, nInputPathSize);
+	WriteToBodyBuffer("output_directory = ", settings.output_directory, 16 + 3, nOutputPathSize);
+	WriteToBodyBuffer("error_directory = ", settings.error_directory, 15 + 3, nErrorPathSize);
+	WriteToBodyBuffer("current_printer = ", settings.current_printer, 15 + 3, nCurrentPrinterSize);
+	WriteToBodyBuffer("waiting_time = ", chWaitingTime, 12 + 3, nWaitingTimeSize);
+
+	chBodyBuffer[nBodySize] = '\0';
+
+	std::cout << "\n\n=====================BODY BUFFER=====================\n\n";
+	std::cout << chBodyBuffer << std::endl;
+
+	delete[] chBodyBuffer;
+
+	std::cout << "Finished reading.\n";
+
+	return TRUE;
+}

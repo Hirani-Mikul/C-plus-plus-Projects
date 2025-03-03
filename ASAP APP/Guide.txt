@@ -1,0 +1,91 @@
+int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPSTR lpCmdLine, _In_ int nCmdShow);
+
+Parameters:
+	[in] hInstance
+		Type: HINSTANCE
+			-> A handle to the current instance of the application.
+
+	[in] hPrevInstance
+		Type: HINSTANCE
+			-> A handle to the previous instance of the application.
+
+	[in] lpCmdLine
+		Type: LPSTR
+			-> The command line for the application, excluding the program name.
+
+	[in] nShowCmd
+		Type: int
+			-> Controls how the window is to be shown.
+
+	Return value
+		Type: int
+			-> If the function succeeds, terminating when it receives a WM_QUIT message, it should return the exit value contained in that message's wParam parameter. If the function terminates before entering the message loop, it should return zero.
+
+
+
+
+
+
+
+LRESULT CALLBACK WndProc(_In_ HWND, _In_ UINT, _In_ WPARAM, _In_ LPARAM);
+
+Parameters:
+
+	Type: HWND
+		-> A handle to the window. This parameter is typically named hWnd.
+
+	Type: UINT
+		-> The message. This parameter is typically named uMsg.
+
+	Type: WPARAM
+		-> Additional message information. This parameter is typically named wParam.
+		The contents of the wParam parameter depend on the value of the uMsg parameter.
+
+	Type: LPARAM
+		-> Additional message information. This parameter is typically named lParam.
+		The contents of the lParam parameter depend on the value of the uMsg parameter.
+
+	Return value
+		Type: LRESULT
+			-> The return value is the result of the message processing, and depends on the message sent.
+
+
+
+HWND hWnd = CreateWindowEx(
+WS_EX_OVERLAPPEDWINDOW,
+   szWindowClass,
+   szTitle,
+   WS_OVERLAPPEDWINDOW,
+   CW_USEDEFAULT, CW_USEDEFAULT,
+   500, 100,
+   NULL,
+   NULL,
+   hInstance,
+   NULL
+);
+
+The parameters to CreateWindowEx explained:
+
+		WS_EX_OVERLAPPEDWINDOW : An optional extended window style.
+		szWindowClass: the name of the application
+		szTitle: the text that appears in the title bar
+		WS_OVERLAPPEDWINDOW: the type of window to create
+		CW_USEDEFAULT, CW_USEDEFAULT: initial position (x, y)
+		500, 100: initial size (width, length)
+		NULL: the parent of this window
+		NULL: this application does not have a menu bar
+		hInstance: the first parameter from WinMain
+		NULL: not used in this application
+
+
+
+
+
+
+
+
+
+
+
+
+

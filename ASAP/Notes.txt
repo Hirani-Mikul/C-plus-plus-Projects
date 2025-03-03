@@ -1,0 +1,212 @@
+
+NOTE 1: 
+
+PostMessage(*m_MainHwnd, FILEFOUND, NULL, (LPARAM)szFileName);
+delete[] szFileName;
+
+
+When the message is written to textbox, it will show random characters because, the buffer is later deleted.
+
+
+
+
+----------------------------------------------------------------------------------------------------------------------------
+
+
+NOTE 2:
+
+--------------------------------> PAUSE MECHANISM <--------------------------------
+
+
+WHAT NEEDS TO BE DONE:
+1. DIRECTORY WATCHER must pause watching the directory.
+2. IF a new file is already detected, then it should be added to the list.
+3. However, the DIRECTORY WATCHER THREAD must not exit.
+4. IF any file is in the process of printing, it should finish printing.
+5. The printed file must be moved to the OUT folder.
+6. While the printing and moving is happening, the user must be informed. i.e. A message: "Application will be paused after the current file is proccessed."
+7. The rest of the detected files in the list, if any, then it must be paused from proceeding.
+8. The ICON background color must indicate pause state.
+9. The Monitoring thread should exit and destroyed after some duration in paused state i.e. 5 minutes.
+
+-----> ALTERNATIVE:
+
+1. Exit the worker thread when paused, and create when resumed.
+
+
+******** If the directory watcher has added new file while the paused is triggered, then there is no need to process the file. **************
+
+--------------------------------> RESUME MECHANISM <--------------------------------
+
+WHAT NEEDS TO BE DONE:
+1. DIRECTORY WATCHER must resume the activity of watching the directory.
+2. The remaining files in the list goes through the process of printing one by one.
+3. User must be informed.
+4. The ICON background color must indicate running state.
+5. If the thread was destroyed, create one and start monitoring.
+
+
+
+
+PROBLEMS:
+1. If the files are in the list and applications is paused, after resuming, the files might be deleted/moved/renamed in the input directory.
+   Therefore, when files are later tried to open, the will be errors.
+
+2. When the application is paused while the directory watcher added a new file in the list. The directory watcher will send a message to
+   the main application to print the file.
+
+
+
+
+----------------------------------> HOW TO PAUSE DIRECTORY WATCHER
+1. Create an event which is monitored using WaitForSingleObject. The initial value of this is FALSE, which means the application is running.
+	IF the event says true, then the thread will wait for the WaitForSingleObject to be triggered.
+
+2. WaitForSingleObject - that waits for new files must be triggered, because if it's still waiting after pause is triggered.
+	Then, when new files are detected, the thread will continue to process until it reaches pause mechanism.
+
+
+
+
+
+--------------------------------> RESTART MECHANISM <--------------------------------
+
+Restart can be achieved by wrapping all the code inside main loop, except "return 0" into a do while loop.
+
+There is a need of a another variable outside this loop that keeps track of whether the application has exited.
+
+When the user clicks exit in the system tray icon, this variable needs to be toggled to indicate that there is no need
+ - to continue the loop and the entire application exits.
+
+When restart is clicked, everything is destroyed, and loop starts again.
+
+----------------------------------------------------------------------------------------------------------------------
+
+
+
+
+NOTE 3:
+
+--------------------------------> LISTING MOUNTED PRINTERS <--------------------------------
+
+First all printers are fetched and stored in the structure "MOUNTEDPRINTERS".
+This requries to allocate memory based on the number of printers found.
+After the printers are fetched, they are stored in structure until they are listed in the dialog box.
+Once the dialog box is filled with the list of printers, then the memory is released.
+
+-----> ALTERNATIVE:
+
+1. Fill the list of the dialog box when the printers are fetched.
+	- This way, there is no need to allocate memory for printers. They are directly filled inside the list box.
+
+----------------------------------------------------------------------------------------------------------------------
+
+
+NOTE 4:
+
+--------------------------------> SETTING CONFIGURATION <--------------------------------
+
+WHAT IS IT?
+1. Read and Write application settings from a config file.
+2. Verify the settings read.
+3. Settings needs to parsed or formatted to read from and write to config file.
+
+
+----------------------------------> DEFAULT SETTINGS:
+
+CONFIG FILE LOCATION: .\config.config
+
+Input directory:      .\IN
+Output directory:     .\OUT\
+Error directory:      .\Error\
+Current printer:      Microsoft PDF Reader
+Waiting time:         2000 milliseconds
+
+=======> Below is how the settings are stored in the application.
+
+struct AppSettings
+{
+	TCHAR input_directory[MAX_PATH] = { 0 };
+	TCHAR output_directory[MAX_PATH] = { 0 };
+	TCHAR error_directory[MAX_PATH] = { 0 };
+	TCHAR current_printer[MAX_PATH] = { 0 };
+	INT waiting_time = 0;
+};
+
+
+----------------------------------> EXAMPLE OF WRITTEN SETTINGS:
+29,15,39,16,40,15,42,15,29,12,4,
+input_directory = C:\Users\HIRANI\Desktop\Project\ASAP\IN
+output_directory = C:\Users\HIRANI\Desktop\Project\ASAP\OUT
+error_directory = C:\Users\HIRANI\Desktop\Project\ASAP\ERROR
+current_printer = Microsoft XPS Document Writer
+waiting_time = 5000
+
+----------------------------------> CONSTRAINTS:
+
+1. The first line is the header line, it stores the length of name and value. Example; 
+	- The name: "intput_directory" has a length of 15
+	- The value: "C:\Users\HIRANI\Desktop\Project\ASAP\IN" has a length of 39.
+
+2. The first value "29" is the total length of the header line excluding:
+	- The value itself "29".
+	- The first comma ",".
+	- Carriage return character "\n".
+
+3. "29" is calcuated by adding: 
+	- 10 commas which are after every value. First comma is excluded.
+	- Length of each value's length i.e. 15 has length of 2, 4 has length of 1 and so on.
+	- Therefore, excluding "29" and "," sequentially adding all lengths:
+		- 2 + 1 + 2 + 1 + 2 + 1 + 2 + 1 + 2 + 1 + 2 + 1 + 2 + 1 + 2 + 1 + 2 + 1 + 1 + 1
+
+4. After end of each line there is a carriage return character "\n", which has to counted while parsing and formatting.
+	- Except last line which does not have a "\n" at the end.
+
+5. All 5 lines excluding the first header line has three extra characters between name and value; two space bar + equal sign.
+	- Therefore, it has to be counted while parsing and formatting the buffer.
+
+6. The maximum length of each names and values:
+	- Names have either; 12, 15, or 16.
+	- All values except waiting time is 260 characters.
+	- Waiting time is 100000.
+
+
+
+----------------------------------> HOW WRITING WORKS:
+To write settings in config file which is stored in the paramanent storage device (hard disk), the application needs to format the
+structure into proper and required format. All the formatted settings and the header line is stored in the buffer, which is then
+written in the config file.
+
+HOW?
+1. First calculate the size of header line by following the below process:
+	A. Get the length of each values i.e. "Hello" has length of 5.
+	B. Get the character length of length of each values i.e. "Hello" has length of 5 and 5 has a length of 1.
+	C. Add all the lengths fetched from step B.
+	D. Add 10 for constant bytes for all name's length's length. 
+	E. Add 5 for each comma after every character length of values.
+	F. Add 5 for each comma after name's length.
+	G. Add 1 for null terminating character.
+	H. Calculate the current character length of header size i.e.
+		- If the current size of the header is 29, then it's character length is 2.
+	I. Add length fetched from step H to header size, plus one for it's comma.
+
+
+2. Now calculate the size of body content.
+	A. Add 73 for lengths of all names i.e. length of input_directory plus length of output_directory and so on.
+	B. Add (20 - 1 = 19) all commas, spaces, equal, and \n. (Minus 1, since the last line does not need new line character.)
+	C. Add lengths of all values i.e. length of value of input_directory and so on.
+
+
+3. Create a buffer of size (header size + body size + 1), plus one for null terminating character.
+4. To keep tract of current writing location in buffer, initiate an index.
+4. Convert sizes that are stored in form of integer into character to write on the buffer.
+5. Write header into the buffer and adding null terminating character at end.
+6. Write body into the buffer.
+7. Write the buffer into the config file.
+8. Finally, delete the buffer to release the memory.
+
+
+----------------------------------> HOW READING WORKS:
+
+
+----------------------------------------------------------------------------------------------------------------------

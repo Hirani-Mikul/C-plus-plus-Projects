@@ -1,0 +1,184 @@
+#include <Windows.h>
+#include <atlstr.h>
+#include <tchar.h>
+#include <WinUser.h>
+#include <iostream>
+#include <unordered_map>
+#include <strsafe.h>
+#include <sysinfoapi.h>
+
+#include <cstdio>
+
+#include "MyQueue.h"
+
+
+struct Setting
+{
+	TCHAR sInput[MAX_PATH];
+	TCHAR sOutput[MAX_PATH];
+	TCHAR sError[MAX_PATH];
+	TCHAR sPrinter[MAX_PATH];
+	DWORD sWaiting;
+};
+
+Setting settings;
+
+BOOL SaveSettings();
+BOOL LoadSettings();
+BOOL VerifySettings();
+
+void Initialize();
+
+int _tmain(int argc, TCHAR* argv[])
+{
+
+	return 0;
+}
+
+void Initialize()
+{
+	LPCWSTR Input = TEXT("C:\\Users\\HIRANI\\Desktop\\Project\\ASAP\\IN");     // INPUT PATH
+	LPCWSTR Output = TEXT("C:\\Users\\HIRANI\\Desktop\\Project\\ASAP\\OUT");    // OUTPUT PATH
+	LPCWSTR Error = TEXT("C:\\Users\\HIRANI\\Desktop\\Project\\ASAP\\ERROR");  // ERROR PATH
+	LPCWSTR Printer = TEXT("Microsoft XPS Document Writer");  // PRINTER NAME
+
+	size_t lenInput = _tcslen(Input);
+	size_t lenOutput = _tcslen(Output);
+	size_t lenError = _tcslen(Error);
+	size_t lenPrinter = _tcslen(Printer);
+
+	_tcscpy_s(settings.sInput, lenInput + 1, Input);
+	_tcscpy_s(settings.sOutput, lenOutput + 1, Output);
+	_tcscpy_s(settings.sError, lenError + 1, Error);
+	_tcscpy_s(settings.sPrinter, lenPrinter + 1, Printer);
+
+	settings.sWaiting = 1000;
+
+}
+BOOL SaveSettings()
+{
+	return FALSE;
+}
+
+==========================================================================================================================================================================
+ANOTHER MAIN CPP OLD CODE
+struct Setting
+{
+	TCHAR sInput[MAX_PATH];
+	TCHAR sOutput[MAX_PATH];
+	TCHAR sError[MAX_PATH];
+	TCHAR sPrinter[32];
+	DWORD sWaiting;
+};
+
+Setting settings;
+
+BOOL SaveSettings();
+BOOL LoadSettings();
+BOOL VerifySettings();
+
+void Initialize();
+
+BOOL ReadFileSettings(AppSetting& settings)
+{
+	HANDLE hFile = CreateFile(
+		L"C:\\Users\\HIRANI\\Desktop\\Windows API\\ASAP Console\\config2.config",
+		GENERIC_READ,
+		FILE_SHARE_READ,
+		NULL,
+		OPEN_EXISTING,
+		FILE_ATTRIBUTE_NORMAL,
+		NULL
+	);
+	if (hFile == INVALID_HANDLE_VALUE)
+	{
+		return FALSE;
+	}
+
+	DWORD bytesRead = 0;
+	BOOL bSuccess = ReadFile(hFile, &settings, sizeof(settings), &bytesRead, NULL);
+
+	CloseHandle(hFile);
+
+	return bSuccess && (bytesRead == sizeof(AppSetting));
+
+	return TRUE;
+}
+
+BOOL WriteFileSettings(CHAR* buffer, CONST AppSetting& settings)
+{
+	HANDLE hFile = CreateFile(
+		L"C:\\Users\\HIRANI\\Desktop\\Windows API\\ASAP Console\\config2.config",
+		GENERIC_WRITE,
+		FILE_SHARE_WRITE,
+		NULL,
+		CREATE_ALWAYS,
+		FILE_ATTRIBUTE_NORMAL,
+		NULL
+	);
+	if (hFile == INVALID_HANDLE_VALUE)
+	{
+		return FALSE;
+	}
+	size_t bufferSize = sizeof(AppSetting);
+
+	DWORD bytesWritten = 0;
+	BOOL bSuccess = WriteFile(hFile, buffer, bufferSize, &bytesWritten, NULL);
+
+	if (bSuccess && bytesWritten == bufferSize)
+	{
+		CloseHandle(hFile);
+		return TRUE;
+	}
+	CloseHandle(hFile);
+
+	return FALSE;
+}
+
+
+
+
+int _tmain(int argc, TCHAR* argv[])
+{
+	
+	CHAR* Buffer = NULL;
+	AppSetting settings;
+
+	ReadAppSettings(&Buffer);
+
+	ParseSetting(Buffer, settings);
+
+	BOOL bSuccess = WriteAppSettings(settings);
+
+	if (Buffer == NULL)
+		delete Buffer;
+	else delete[] Buffer;
+
+
+	return 0;
+}
+
+void Initialize()
+{
+	LPCWSTR Input = TEXT("C:\\Users\\HIRANI\\Desktop\\Project\\ASAP\\IN");     // INPUT PATH
+	LPCWSTR Output = TEXT("C:\\Users\\HIRANI\\Desktop\\Project\\ASAP\\OUT");    // OUTPUT PATH
+	LPCWSTR Error = TEXT("C:\\Users\\HIRANI\\Desktop\\Project\\ASAP\\ERROR");  // ERROR PATH
+	LPCWSTR Printer = TEXT("Microsoft XPS Document Writer");  // PRINTER NAME
+
+	size_t lenInput = _tcslen(Input);
+	size_t lenOutput = _tcslen(Output);
+	size_t lenError = _tcslen(Error);
+	size_t lenPrinter = _tcslen(Printer);
+
+	_tcscpy_s(settings.sInput, lenInput + 1, Input);
+	_tcscpy_s(settings.sOutput, lenOutput + 1, Output);
+	_tcscpy_s(settings.sError, lenError + 1, Error);
+	_tcscpy_s(settings.sPrinter, lenPrinter + 1, Printer);
+
+	settings.sWaiting = 1000;
+
+}
+BOOL SaveSettings()
+{
+	return FALSE;
+}

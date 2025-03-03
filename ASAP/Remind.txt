@@ -1,0 +1,24 @@
+1. Check if the Logger is initialized when Writing from the WndProc.
+2. Read the comments in every header files.
+3. When opening the file for printing, instead of waiting, try destroying the old handle to the opened file.
+4. Check why does private methods when called from Setting Procedure Handler, shows the Setting Window Handle as NULL.
+5. When the application starts or resumes, it should check in the IN directory for files, if detected, process them.
+6. Fix the problem with selecting the printer from the list. Enter & Esc key doesn't work.
+7. Implement the functionality of fetching the default printer.
+8. In all window and dialog procedures, do something about getting and checking the state, maybe use another function for error checking.
+	- To reduce repeatative code.
+9. When drawing icons during the WM_PAINT case in the SettingMessageHandler, without returing the default message or empty 
+   begin paint and end paint with device context as setting windows handle, the rest of the setting window is not drawn.
+	- If 0 is returned, only icons are drawn and other division is not drawn i.e. lable, buttons and etc.
+	- Instead of returning default windows message or empty begin and end paint, try to do something standard if possible.
+10. Need to change how setting is written and read to and from the config file.
+	- If any value in the config file is manually changed to size larger than required, then error will occur.
+	- If any value in the config file is changed manually, then the header may also need to be changed manually. 
+11. Need to provide functionality to manage the each of the following scenario;
+	- If the config file does not exist.
+	- If the config file exist, but it's empty.
+	- If the config file exist and it's not empty, but the data is not valid.
+12. If the input directory is changed after the application has been launched, the directory watcher class needs to create
+	new handle to the updated directory and release the old directory handle for monitoring.
+13. Instead creating another window and registering the setting window, use dialog box for setting window.
+14. Default config file directory is currently defined in the utils.h file "SETTINGS_CONFIGFILEDIR". May change to store it in the Resource String Table.

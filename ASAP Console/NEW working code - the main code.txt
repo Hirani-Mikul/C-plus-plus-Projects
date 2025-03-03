@@ -1,0 +1,286 @@
+#include <Windows.h>
+#include <atlstr.h>
+#include <tchar.h>
+#include <WinUser.h>
+#include <iostream>
+#include <unordered_map>
+#include <strsafe.h>
+
+class DirectoryWatcher
+{
+public:
+	DirectoryWatcher()
+	{
+		m_hDirectory = INVALID_HANDLE_VALUE;
+		m_Overlapped = { 0 };
+	}
+
+	~DirectoryWatcher()
+	{
+		if (!paths_.empty())
+		{
+
+		}
+	}
+public:
+
+	void initiate()
+	{
+
+	}
+
+private:
+	struct ArrayHasher
+	{
+		std::size_t operator()(const TCHAR* path) const {
+			std::size_t h = 0;
+
+			int i = 0;
+
+			while (path[i] != '\0')
+			{
+				h ^= std::hash<TCHAR>{}(path[i]) + 0x9e3779b9 + (h << 6) + (h >> 2);
+			}
+			return h;
+		}
+	};
+
+	bool m_contains(TCHAR* key) {
+
+		auto el = paths_.find(key);
+		return el != paths_.end();
+	}
+
+private:
+
+	std::unordered_map<TCHAR*, FILETIME, ArrayHasher> paths_;
+	TCHAR m_PathToWatch[_MAX_PATH] = _T("C:\\Users\\HIRANI\\Desktop\\Windows API\\ASAP APP\\IN\0");
+
+	HANDLE m_hDirectory;
+	OVERLAPPED m_Overlapped;
+};
+
+
+TCHAR path_to_watch[_MAX_PATH] = TEXT("C:\\Users\\HIRANI\\Desktop\\Windows API\\ASAP Console\\IN");
+
+struct ArrayHasher
+{
+	std::size_t operator()(const TCHAR* path) const {
+		std::size_t h = 0;
+
+		int i = 0;
+
+		while (path[i] != '\0')
+		{
+			h ^= std::hash<TCHAR>{}(_toupper(path[i])) + 0x9e3779b9 + (h << 6) + (h >> 2);
+
+			i++;
+		}
+
+		//std::wcout << path << "->" << h << "\n";
+		return h;
+	}
+};
+
+
+struct KeyComparator
+{
+	bool operator()(const TCHAR* key1, const TCHAR* key2) const
+	{
+		return (_tcscmp(key1, key2) == 0) ? true : false;
+	}
+};
+
+bool contains(const std::unordered_map<TCHAR*, FILETIME, ArrayHasher, KeyComparator>& num, TCHAR* key)
+{
+	auto el = num.find(key);
+	return el != num.end();
+}
+void ErrorMessage(const wchar_t* lpszFunction)
+{
+	LPVOID lpMsgBuf;
+	LPVOID lpDisplayBuf;
+
+	DWORD dw = GetLastError();
+
+	FormatMessage(
+		FORMAT_MESSAGE_ALLOCATE_BUFFER |
+		FORMAT_MESSAGE_FROM_SYSTEM |
+		FORMAT_MESSAGE_IGNORE_INSERTS,
+		NULL,
+		dw,
+		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+		(LPTSTR)&lpMsgBuf,
+		0,
+		NULL
+	);
+
+	lpDisplayBuf = (LPVOID)LocalAlloc(
+		LMEM_ZEROINIT,
+		(lstrlen((LPCTSTR)lpMsgBuf) + lstrlen((LPCTSTR)lpszFunction) + 40) * sizeof(TCHAR)
+	);
+
+	StringCchPrintf(
+		(LPTSTR)lpDisplayBuf,
+		LocalSize(lpDisplayBuf) / sizeof(TCHAR),
+		TEXT("%s failed with error %d: %s"),
+		lpszFunction,
+		dw,
+		lpMsgBuf
+	);
+
+	MessageBox(
+		NULL,
+		(LPCTSTR)lpDisplayBuf,
+		TEXT("Error"),
+		MB_OK
+	);
+
+	LocalFree(lpMsgBuf);
+	LocalFree(lpDisplayBuf);
+}
+
+int _tmain(int argc, TCHAR* argv[])
+{
+
+	std::unordered_map<TCHAR*, FILETIME, ArrayHasher, KeyComparator> paths_;
+
+	HANDLE hDirectory = CreateFile(
+		path_to_watch,
+		GENERIC_READ,
+		FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+		NULL,
+		OPEN_EXISTING,
+		FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OVERLAPPED,
+		NULL
+	);
+
+	if (hDirectory == INVALID_HANDLE_VALUE)
+	{
+		std::wcout << "CreateFile failed - hDirectory.\n";
+		return 0;
+	}
+
+	OVERLAPPED overlapped = { 0 };
+
+	overlapped.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
+
+	DWORD buffer[1024];
+	DWORD dwBytesReturned = 0;
+
+	BOOL success = ReadDirectoryChangesW(
+		hDirectory,
+		buffer,
+		sizeof(buffer),
+		FALSE,
+		FILE_NOTIFY_CHANGE_FILE_NAME |
+		FILE_NOTIFY_CHANGE_DIR_NAME |
+		FILE_NOTIFY_CHANGE_ATTRIBUTES |
+		FILE_NOTIFY_CHANGE_SIZE |
+		FILE_NOTIFY_CHANGE_LAST_WRITE |
+		FILE_NOTIFY_CHANGE_LAST_ACCESS |
+		FILE_NOTIFY_CHANGE_CREATION |
+		FILE_NOTIFY_CHANGE_SECURITY,
+		&dwBytesReturned,
+		&overlapped,
+		NULL
+	);
+
+	while (true)
+	{
+		if (!success) break;
+
+		WaitForSingleObject(overlapped.hEvent, INFINITE);
+
+		DWORD bytesTransferrd;
+
+		success = GetOverlappedResult(hDirectory, &overlapped, &bytesTransferrd, FALSE);
+
+		if (!success) break;
+
+		PFILE_NOTIFY_INFORMATION pNotify = (PFILE_NOTIFY_INFORMATION)buffer;
+
+		while (pNotify)
+		{
+			if (pNotify->Action == FILE_ACTION_ADDED)
+			{
+				TCHAR szFileName[MAX_PATH + 1];
+
+				memcpy(szFileName, (pNotify->FileName), min(MAX_PATH, pNotify->FileNameLength));
+				szFileName[min((pNotify->FileNameLength / sizeof(TCHAR)), MAX_PATH)] = 0;
+
+				size_t len_path = _tcslen(path_to_watch);
+				size_t len_file = _tcslen(szFileName);
+
+				std::wcout << "Path Length: " << len_path << std::endl;
+				std::wcout << "File Length: " << len_file << std::endl;
+
+				// Plus 2 because: 1 for null terminating, and another for '\'
+
+				TCHAR* fullpath = new TCHAR[len_path + len_file + 2];
+
+				_tcscpy_s(fullpath, len_path + 1, path_to_watch);
+				fullpath[len_path] = '\\';
+				_tcscpy_s(fullpath + len_path + 1, len_file + 1, szFileName);
+
+				Sleep(1000); // Find out the reason why I need to wait before creating the file handle
+
+				HANDLE hFile = CreateFile(fullpath, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
+
+				if (hFile == INVALID_HANDLE_VALUE)
+				{
+					ErrorMessage(L"CreateFile failed.");
+					break;
+				}
+
+				FILETIME ftWrite;
+				GetFileTime(hFile, NULL, NULL, &ftWrite);
+
+				if (!contains(paths_, fullpath))
+				{
+					std::wcout << "File not in list: \n";
+					paths_[fullpath] = ftWrite;
+
+					std::wcout << "File path: " << fullpath << std::endl;
+				} else
+					std::wcout << "File exists in the list: \n";
+
+				CloseHandle(hFile);
+
+			}
+
+			if (pNotify->NextEntryOffset == 0)break;
+
+			pNotify = (PFILE_NOTIFY_INFORMATION)((LPBYTE)pNotify + pNotify->NextEntryOffset);
+		}
+		ResetEvent(overlapped.hEvent);
+
+		success = ReadDirectoryChangesW(
+			hDirectory,
+			buffer,
+			sizeof(buffer),
+			FALSE,
+			FILE_NOTIFY_CHANGE_FILE_NAME |
+			FILE_NOTIFY_CHANGE_DIR_NAME |
+			FILE_NOTIFY_CHANGE_ATTRIBUTES |
+			FILE_NOTIFY_CHANGE_SIZE |
+			FILE_NOTIFY_CHANGE_LAST_WRITE |
+			FILE_NOTIFY_CHANGE_LAST_ACCESS |
+			FILE_NOTIFY_CHANGE_CREATION |
+			FILE_NOTIFY_CHANGE_SECURITY,
+			&dwBytesReturned,
+			&overlapped,
+			NULL
+		);
+	}
+
+	if (paths_.size() > 0)
+	{
+		for (auto& el : paths_)
+		{
+			delete[] el.first;
+		}
+	}
+
+	return 0;
+}

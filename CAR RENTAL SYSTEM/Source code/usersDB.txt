@@ -1,0 +1,21 @@
+[{
+    "Balance" : 7720.000000,
+    "Password" : "hirani@123",
+    "Username" : "Mikul",
+    "_id" : 7
+  }, {
+    "Balance" : 20000.000000,
+    "Password" : "bhavik123",
+    "Username" : "Bhavik",
+    "_id" : 8
+  }, {
+    "Balance" : 30000.000000,
+    "Password" : "rabadia",
+    "Username" : "Nirav",
+    "_id" : 9
+  }, {
+    "Balance" : 30000.000000,
+    "Password" : "patel@123",
+    "Username" : "Divyesh",
+    "_id" : 10
+  }]
