@@ -1,0 +1,83 @@
+#include <iostream>
+#include <Windows.h>
+#include <winspool.h>
+#include <vector>
+#include <wingdi.h>
+#include <string>
+#include <atlstr.h>
+#include <filesystem>
+
+
+
+#pragma comment(lib, "winspool.lib")
+#pragma comment (lib, "Gdi32.lib")
+
+
+
+#define LOG_ERROR(message, error) \
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 4); \
+	std::cout << message << " -> " << error << std::endl; \
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 15) 
+
+
+#define LOG_SUCCESS(message) \
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 10); \
+	std::cout << message << std::endl; \
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 15) 
+
+
+#define LOG_WARNING(message) \
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 14); \
+	std::cout << message << std::endl; \
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 15)
+
+
+
+#define LOG_INFO(message) \
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7); \
+	std::cout << message << std::endl; \
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 15) 
+
+
+bool getMountedPrinters(std::vector<std::string>&);
+
+
+int main (){
+
+}
+
+bool getMountedPrinters(std::vector<std::string>& collection)
+{
+	PRINTER_INFO_5* printerInfo = NULL;
+	DWORD needed, // Buffer size needed
+		returned; // Entities found
+	DWORD flags = PRINTER_ENUM_LOCAL | PRINTER_ENUM_CONNECTIONS;
+
+	// Find required size for the buffer
+	EnumPrinters(flags, NULL, 5, NULL, 0, &needed, &returned);
+
+	// Allocate array of PRINTER_INFO structures
+	printerInfo = (PRINTER_INFO_5*)GlobalAlloc(GPTR, needed);
+
+	if (!EnumPrinters(flags, NULL, 2, (LPBYTE)printerInfo, needed, &needed, &returned))
+	{
+		LOG_ERROR("Failed to fetch printers -> ", GetLastError());
+
+		return false;
+	}
+	
+	collection.resize((int)returned);
+
+	for (int i = 0; i < (int)returned; i++)
+	{
+		std::wstring wstr = std::wstring(printerInfo[i].pPrinterName);
+		
+		collection[i] = std::string(wstr.begin(), wstr.end());
+	}
+
+	GlobalFree(printerInfo);
+
+}
+
+
+

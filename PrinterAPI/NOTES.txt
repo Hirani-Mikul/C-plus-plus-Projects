@@ -1,0 +1,24 @@
+1. Print Spooler API Functions
+  - The Print Spooler API contains the functions and data structures that applications use to manage the Windows print spooler and the printers and print jobs that it controls.
+
+2. Print Spooler API Enumerations
+  - This section contains an alphabetical listing of the enumerations that are used by the Print Spooler API.
+
+3. Print Spooler API Structures
+  - This section contains an alphabetical listing of the structures that are used by the Print Spooler API.
+
+4.  Print Spooler API Messages
+  - The following message is used by the Print Spooler API.
+
+
+
+================================== PRINT SPOOLER API FUNCTIONS ==============
+1. Print Job Functions
+2. Printer User Interface Functions
+3. Printer Functions
+4. Printer Change Notification Functions
+5. Printer Form Functions
+6. Print Spooler Functions
+
+
+

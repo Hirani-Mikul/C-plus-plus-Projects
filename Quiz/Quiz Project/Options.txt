@@ -1,0 +1,6 @@
+Larry_Page John_Resig Mark_Zuckerberg
+Rahul_Gandhi Arvind_Kejriwal Narendra_Modi
+Steve_Jobs Elon_Musk Bill_Gates
+Joe_Biden Donald_Trump Albert_Einstein
+Bharat Afganistan USA
+1939-1945 1914-1918 1938-1944

@@ -1,0 +1,90 @@
+{
+	Username: Mikul,
+	Password: hirani123,
+	Balance: 84932,
+	Requests: [ 
+		{
+			Model: Ferrari, 
+			Count: 2,
+		},
+		{
+			Model: Subaru,
+			Count: 1,
+		}, 
+	],
+},
+{
+	Username: Bhavik,
+	Password: bhavik123,
+	Balance: 341244,
+	Requests: [ 
+		{
+			Model: Toyota,
+			Count: 22,
+		},
+		{
+			Model: Subaru,
+			Count: 143,
+		}, 
+	],
+},
+{
+	Username: Divyesh,
+	Password: dabasia123,
+	Balance: 5423535,
+	Requests: [ 
+		{
+			Model: Toyota,
+			Count: 22,
+		},
+		{
+			Model: Subaru,
+			Count: 143,
+		},
+		{
+			Model: Ferrari,
+			Count: 13,
+		},
+		{
+			Model: Buggati,
+			Count: 10003,
+		},
+		{
+			Model: Pro Box,
+			Count: 200100,
+		},
+		{
+			Model: Range Rovers,
+			Count: 432,
+		}, 
+	],
+},
+{
+	Username: Harshad,
+	Password: vekaria123,
+	Balance: 32,
+	Requests: [ 
+		{
+			Model: BMW,
+			Count: 2,
+		},
+	],
+},
+{
+	Username: Shane,
+	Password: kanyi123,
+	Balance: 0.000000,
+	Requests: 0,
+},
+{
+	Username: Preet,
+	Password: patel123,
+	Balance: 0.000000,
+	Requests: 0,
+},
+{
+	Username: Mann,
+	Password: patel123,
+	Balance: 0.000000,
+	Requests: 0,
+},

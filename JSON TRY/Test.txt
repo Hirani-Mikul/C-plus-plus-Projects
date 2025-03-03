@@ -1,0 +1,35 @@
+[{
+    "Balance" : 1034.229980,
+    "Password" : "hirani123",
+    "Requests" : [{
+        "Count" : 20,
+        "Model" : "Ferrari"
+      }, {
+        "Count" : 340,
+        "Model" : "Subaru"
+      }, {
+        "Count" : 4530,
+        "Model" : "Range Rover"
+      }],
+    "Username" : "Mikul"
+  }, {
+    "Balance" : 103324.617188,
+    "Password" : "bhavik123",
+    "Requests" : [{
+        "Count" : 24320,
+        "Model" : "Probox"
+      }, {
+        "Count" : 30,
+        "Model" : "Toyota"
+      }, {
+        "Count" : 43,
+        "Model" : "Buggati"
+      }],
+    "Username" : "Bhavik"
+  }, {
+    "Balance" : 423,
+    "Password" : "nirav123",
+    "Requests" : [],
+    "Username" : "Nirav"
+  }	
+]

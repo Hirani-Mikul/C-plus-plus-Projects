@@ -1,0 +1,30 @@
+{
+	"Model" : "Toyota",
+	"Amount" : 13423,
+	"Stock" : 10,
+},
+{
+	"Model" : "Subaru",
+	"Amount" : 52332,
+	"Stock" : 4,
+},
+{
+	"Model" : "Ferrari",
+	"Amount" : 1000000,
+	"Stock" : 58,
+},
+{
+	"Model" : "Abcdefgfdsafasd",
+	"Amount" : 1000,
+	"Stock" : 58,
+},
+{
+	"Model" : "BMW",
+	"Amount" : 10,
+	"Stock" : 58,
+},
+{
+	"Model" : "Probox",
+	"Amount" : 200,
+	"Stock" : 0,
+},

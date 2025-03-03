@@ -1,0 +1,52 @@
+PoDoFo does not provide a means to easily extract text from a document, but it is not hard to do.
+
+Load a document into a PdfMemDocument:
+
+PoDoFo::PdfMemDocument pdf("mydoc.pdf");
+Iterate over each page:
+
+for (int pn = 0; pn < pdf.GetPageCount(); ++pn) {
+    PoDoFo::PdfPage* page = pdf.GetPage(pn);
+Iterate over all the PDF commands on that page:
+
+    PoDoFo::PdfContentsTokenizer tok(page);
+    const char* token = nullptr;
+    PoDoFo::PdfVariant var;
+    PoDoFo::EPdfContentsType type;
+    while (tok.ReadNext(type, token, var)) {
+        switch (type) {
+            case PoDoFo::ePdfContentsType_Keyword:
+                // process token: it contains the current command
+                //   pop from var stack as necessary
+                break;
+            case PoDoFo::ePdfContentsType_Variant:
+                // process var: push it onto a stack
+                break;
+            default:
+                // should not happen!
+                break;
+        }
+    }
+}
+The "process token" & "process var" comments is where it gets a little more complex. You are given raw PDF commands to process. Luckily, if you're not actually rendering the page and all you want is the text, you can ignore most of them. The commands you need to process are:
+
+BT, ET, Td, TD, Ts, T, Tm, Tf, ", ', Tj and TJ
+
+The BT and ET commands mark the beginning and end of a text stream, so you want to ignore anything that's not between a BT/ET pair.
+
+The PDF language is RPN based. A command stream consists of values which are pushed onto a stack and commands which pop values off the stack and process them.
+
+The ", ', Tj and TJ commands are the only ones which actually generate text. ", ' and Tj return a single string. Use var.IsString() and var.GetString() to process it.
+
+TJ returns an array of strings. You can extract each one with:
+
+if (var.isArray()) {
+    PoDoFo::PdfArray& a = var.GetArray();
+    for (size_t i = 0; i < a.GetSize(); ++i)
+        if (a[i].IsString())
+            // do something with a[i].GetString()
+The other commands are used to determine when to introduce a line break. " and ' also introduce line breaks. Your best bet is to download the PDF spec from Adobe and look up the text processing section. It explains what each command does in more detail.
+
+I found it very helpful to write a small program which takes a PDF file and dumps out the command stream for each page.
+
+Note: If all you're doing is extracting raw text with no positioning information, you don't actually need to maintain a stack of var values. All the text rendering commands have, at most, one parameter. You can simply assume that the last value in var contains the parameter for the current command.

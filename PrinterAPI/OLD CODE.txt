@@ -1,0 +1,207 @@
+// PrinterAPI.cpp : This file contains the 'main' function. Program execution begins and ends there.
+//
+
+#include <iostream>
+#include <Windows.h>
+#include <winspool.h>
+#include <vector>
+
+
+#define LOG_ERROR(message, error) \
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 4); \
+	std::cout << message << " -> " << error << std::endl; \
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 15) 
+
+
+#define LOG_SUCCESS(message) \
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 10); \
+	std::cout << message << std::endl; \
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 15) 
+
+
+#define LOG_WARNING(message) \
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 14); \
+	std::cout << message << std::endl; \
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 15)
+
+
+
+#define LOG_INFO(message) \
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7); \
+	std::cout << message << std::endl; \
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 15) 
+
+
+int main()
+{
+
+	std::vector<std::string> mountedPrinters;
+
+	int printerToUse = int{ };
+
+	PRINTER_INFO_5* printer = nullptr;
+	DWORD sizeBuffer = 0;
+	DWORD entries = 0; // Total number of mounted printers
+
+	HANDLE hPrinterHandle = INVALID_HANDLE_VALUE;
+	DOC_INFO_1 docInfo;
+
+	LPWORD bytes_written = 0;
+	char docName[] = "test";
+	char dataType[] = "text";
+
+	// GET BUFFER SIZE
+	// RETURNS ERROR
+
+	EnumPrinters(
+		PRINTER_ENUM_LOCAL | PRINTER_ENUM_CONNECTIONS,
+		NULL,
+		5,
+		NULL,
+		NULL,
+		&sizeBuffer,
+		&entries
+	);
+
+	// -------------------- PRINT THE BUFFER SIZE -----------------
+	//std::unique_ptr<BYTE[]> ptrBuffer(new BYTE[sizeBuffer]);
+
+	printer = (PRINTER_INFO_5*)malloc(sizeBuffer);
+
+	// Now successfully fetches the mounted printers
+
+	EnumPrinters(
+		PRINTER_ENUM_LOCAL | PRINTER_ENUM_CONNECTIONS,
+		NULL,
+		5,
+		(LPBYTE)printer,
+		sizeBuffer,
+		&sizeBuffer,
+		&entries
+	);
+	if (!entries) {
+		LOG_ERROR("Found 0 Printers OR Failed to fetch printers", GetLastError());
+		return 0;
+	}
+	else {
+
+		//printer = (PRINTER_INFO_5*)ptrBuffer.get();
+		mountedPrinters.resize((int)entries);
+
+		for (int i = 0; i < (int)entries; i++)
+		{
+			std::wstring wstr(printer[i].pPrinterName);
+			mountedPrinters[i] = std::string(wstr.begin(), wstr.end());
+
+		}
+	}
+
+	//std::wstring tempw = std::wstring(printer[0].Attributes);
+
+	//std::string temps = std::string(tempw.begin(), tempw.end());
+
+	//std::cout << "Debug: " << temps << std::endl;
+
+	std::cout << "Debug 2: " << printer[0].Attributes << std::endl;
+
+	free(printer);
+
+	//GlobalFree(printer);
+
+
+	return 0;
+
+	LOG_INFO("Printer List: ");
+
+	for (int i = 0; i < mountedPrinters.size(); i++)
+	{
+		std::cout << i + 1 << "\t" << mountedPrinters[i] << std::endl;
+
+	}
+	printerToUse = 2;
+
+	std::wstring wstr_printerName
+		= std::wstring(mountedPrinters[printerToUse].begin(), mountedPrinters[printerToUse].end());
+
+	BOOL openPrinter = OpenPrinter(
+		(LPWSTR)wstr_printerName.c_str(),
+		&hPrinterHandle,
+		NULL
+	);
+
+
+
+	if (!openPrinter) { LOG_ERROR("Error Opening Printer: ", GetLastError()); }
+	else LOG_SUCCESS("Printer Opened Successfully");
+
+	std::string str_printText = "HELLO THERE, MY NAME IS PRINTER. ";
+	//std::string str_outputPath = "C:\\Users\\HIRANI\\Desktop\\abc";
+
+	//const char* outputPath = str_outputPath.c_str();
+
+	const char* printText = str_printText.c_str();
+
+	docInfo.pDocName = (LPTSTR)docName;
+	docInfo.pDatatype = (LPTSTR)dataType;
+	docInfo.pOutputFile = (LPTSTR)0;
+	//docInfo.pOutputFile = (LPTSTR)outputPath;
+
+	int sdp = StartDocPrinter(hPrinterHandle, 1, (LPBYTE) & docInfo);
+	//StartDocPrinterA() OR W
+
+	//StartDocPrinter(,);
+
+	if (sdp) { 
+		LOG_SUCCESS("Successfully started printer.");
+	}
+	else LOG_ERROR("Failed to start printer", GetLastError());
+
+	int suc = StartPagePrinter(&hPrinterHandle);
+	
+
+	if (suc) { LOG_SUCCESS("Start Page Printer Success."); }
+	else LOG_ERROR("Start Page Printer Error", GetLastError());
+
+
+	std::cout << "Writing: " << printText << std::endl;
+	
+	int temp = WritePrinter(hPrinterHandle, (LPVOID)& printText, (DWORD)std::strlen(printText), (LPDWORD)&bytes_written);
+
+	std::cout << "Bytes written: " << temp << std::endl;
+
+	if (temp) {
+		LOG_SUCCESS("Successfully written to printer.");
+	}
+	else {
+		LOG_ERROR("Failed to write content.", GetLastError());
+	}
+
+	EndPagePrinter(hPrinterHandle);
+	EndDocPrinter(hPrinterHandle);
+	ClosePrinter(hPrinterHandle);
+	
+	//int abc = 0;
+	//std::cin >> abc;
+
+
+}
+
+/*
+	AddJob()
+	ClosePrinter()
+	EndDocPrinter()
+	EndPagePrinter()
+	EnumJobs()
+	GetJob()
+	OpenPrinter()
+	SetJob()
+	StartDocPrinter()
+	StartPagePrinter()
+
+
+	EnumPrinters()
+	GetDefaultPrinter()
+	WritePrinter()
+
+*/
+

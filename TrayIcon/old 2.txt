@@ -1,0 +1,101 @@
+#include <Windows.h> 
+#include <string.h>     
+#include <stdlib.h>     
+#include <stdio.h>      
+#include <errno.h>      
+#include <iostream>
+
+
+NOTIFYICONDATA trayIcon;
+HWND hwnd = GetConsoleWindow();
+
+BOOL WINAPI ConsoleHandler(DWORD CEvent)
+{
+    char mesg[128];
+    switch (CEvent)
+    {
+
+    case CTRL_C_EVENT:
+        MessageBox(NULL,
+            L"CTRL+C received!", L"CEvent", MB_OK);
+        break;
+    case CTRL_BREAK_EVENT:
+        MessageBox(NULL,
+            L"CTRL+BREAK received!", L"CEvent", MB_OK);
+        break;
+    case CTRL_CLOSE_EVENT:
+
+        ShellExecuteW(NULL, L"open", L"yourexe.exe", NULL, NULL, SW_MINIMIZE);
+
+        break;
+    case CTRL_LOGOFF_EVENT:
+        MessageBox(NULL,
+            L"User is logging off!", L"CEvent", MB_OK);
+        break;
+    case CTRL_SHUTDOWN_EVENT:
+        MessageBox(NULL,
+            L"User is logging off!", L"CEvent", MB_OK);
+        break;
+    }
+    return TRUE;
+}
+
+int main()
+{
+
+    trayIcon.cbSize = sizeof(NOTIFYICONDATA);
+    trayIcon.hWnd = hwnd;
+    trayIcon.uID = 1;
+    trayIcon.uFlags = NIF_ICON | NIF_MESSAGE | NIF_TIP;
+    //trayIcon.hIcon = LoadIcon(hInst)
+    trayIcon.hIcon = (HICON)LoadImage(NULL, L"./icons/printer2.ico", IMAGE_ICON, 0, 0, LR_LOADFROMFILE);
+    trayIcon.uCallbackMessage = WM_USER + 1;
+    trayIcon.uVersion = NOTIFYICON_VERSION_4;
+
+    Shell_NotifyIcon(NIM_ADD, &trayIcon);
+    std::cout << "Program running..." << std::endl;
+
+    MSG msg;
+    if (SetConsoleCtrlHandler(
+        (PHANDLER_ROUTINE)ConsoleHandler, TRUE) == FALSE)
+    {
+
+        printf("Unable to install handler!\n");
+        return -1;
+    }
+    else printf("Successfully installed the handler.\n");
+
+    //HMENU hMenu = CreatePopupMenu();
+    //AppendMenu(hMenu, MF_STRING, 1, L"Pause");
+    //AppendMenu(hMenu, MF_STRING, 1, L"Resume");
+    //AppendMenu(hMenu, MF_STRING, 1, L"Restart");
+    //AppendMenu(hMenu, MF_STRING, 1, L"Exit");
+
+    //POINT pt;
+    //GetCursorPos(&pt);
+    //TrackPopupMenu(hMenu, TPM_RIGHTBUTTON, pt.x, pt.y, 0, hwnd, NULL);
+
+    while (true)
+    {
+
+        while (PeekMessage(&msg, hwnd, 0, 0, PM_REMOVE))
+        {
+
+            if (msg.message == WM_CLOSE)
+            {
+                continue;
+            }
+
+            if (msg.message == WM_USER + 1)
+            {
+                ShowWindow(hwnd, SW_RESTORE);
+            }
+
+            DispatchMessage(&msg);
+        }
+
+    }
+
+    Shell_NotifyIcon(NIM_DELETE, &trayIcon);
+    return 0;
+}
