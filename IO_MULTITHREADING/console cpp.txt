@@ -1,0 +1,94 @@
+#pragma once
+#include <iostream>
+#include <thread>
+#include "Console.h"
+#include <string>
+#include <sstream>
+
+struct Flags
+{
+    // flag: true then exit communication thread and main loop
+    bool exit;
+
+    // flag: true then start data processing
+    bool start;
+
+    // the mini console
+    Console console;
+
+    Flags() : exit(false), start(true) {}
+};
+
+void readInput(const std::string& input, Flags& shared)
+{
+    if (std::strcmp(input.c_str(), "start") == 0)
+        shared.start = true;
+    else if (std::strcmp(input.c_str(), "stop") == 0)
+        shared.start = false;
+    else if (std::strcmp(input.c_str(), "exit") == 0)
+        shared.exit = true;
+    else if (input.size())
+        shared.console.Write("Wrong command!");
+
+}
+
+void outputContent(Flags& shared)
+{
+    int i = 0;
+    while (!shared.exit)
+    {
+        while (!shared.start)
+        {
+            if (shared.exit) return;
+
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        }
+
+        shared.console.Write("Start data processing.");
+
+        for (;;)
+        {
+            if (!shared.exit || shared.exit)
+            {
+                shared.console.Write("Data processing stopped");
+                while (!shared.start || shared.exit)
+                {
+                    if (shared.exit)
+                        return;
+
+                    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+                }
+                shared.console.Write("Data processing restarted");
+
+            }
+
+            std::this_thread::sleep_for(std::chrono::milliseconds(250));
+            {
+                std::ostringstream fmt;
+                fmt << "Cake " << ++i;
+                shared.console.Write(fmt.str());
+            }
+        }
+
+        shared.console.Write("Data processing done.");
+        shared.start = false;
+    }
+}
+
+int main()
+{
+    Flags shared;
+
+    std::thread worker(&outputContent, std::ref(shared));
+
+    while (!shared.exit)
+    {
+        shared.console.Write("Commands accepted: start stop exit");
+        std::string input = shared.console.Read();
+        readInput(input, shared);
+    }
+
+    worker.join();
+
+    return 0;
+}

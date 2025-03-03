@@ -1,0 +1,90 @@
+#include <iostream>
+#include <thread>
+#include "Console.h"
+#include <chrono>
+#include <sstream>
+
+struct Flag {
+	bool exit;
+	bool start;
+
+	Console console;
+
+	Flag() : exit{ false }, start{ true } {}
+};
+
+void output(Flag& shared) {
+
+    int i = 0;
+    while (!shared.exit)
+    {
+        while (!shared.start)
+        {
+            if (shared.exit) return;
+
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        }
+
+        shared.console.Write("Start data processing.");
+
+        for (;;)
+        {
+            if (!shared.exit || shared.exit)
+            {
+                shared.console.Write("Data processing stopped");
+                while (!shared.start || shared.exit)
+                {
+                    if (shared.exit)
+                        return;
+
+                    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+                }
+                shared.console.Write("Data processing restarted");
+
+            }
+
+            std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+            {
+                std::ostringstream fmt;
+                fmt << "Mikul is a good boy " << ++i;
+                shared.console.Write(fmt.str());
+            }
+        }
+
+        shared.console.Write("Data processing done.");
+        shared.start = false;
+    }
+
+
+}
+
+void read(const std::string& input, Flag& shared) {
+
+	if (std::strcmp(input.c_str(), "start") == 0)
+		shared.start = true;
+	else if (std::strcmp(input.c_str(), "stop") == 0)
+		shared.start = false;
+	else if (std::strcmp(input.c_str(), "exit") == 0)
+		shared.exit = true;
+	else if (input.size())
+		shared.console.Write("Wrong command!");
+}
+
+int main()
+{
+	Flag shared;
+
+	std::thread worker(&output, std::ref(shared));
+
+	while (true)
+	{
+		shared.console.Write("Commands accepted: start stop exit");
+		std::string input = shared.console.Read();
+		read(input, shared);
+	}
+
+	worker.join();
+
+	return 0;
+}
+

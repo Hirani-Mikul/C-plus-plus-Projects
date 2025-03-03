@@ -1,0 +1,6 @@
+{
+	"Name" : "Mikul Hirani",
+	"Email" : "hm@gmail.com",
+	"DOB" : "2000-01-01",
+	"Gender" : 'M',
+}

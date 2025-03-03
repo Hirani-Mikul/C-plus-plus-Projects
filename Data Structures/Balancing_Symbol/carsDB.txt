@@ -1,0 +1,46 @@
+[{
+    "Model" : "Toyota",
+    "Price" : 320.000000,
+    "Stock" : 0,
+    "_id" : 1
+  }, {
+    "Model" : "Tesla",
+    "Price" : 780.000000,
+    "Stock" : 102,
+    "_id" : 3
+  }, {
+    "Model" : "Ferrari",
+    "Price" : 1020.000000,
+    "Stock" : 561,
+    "_id" : 4
+  }, {
+    "Model" : "BMW",
+    "Price" : 300.000000,
+    "Stock" : 103,
+    "_id" : 5
+  }, {
+    "Model" : "Probox",
+    "Price" : 80.000000,
+    "Stock" : 30,
+    "_id" : 6
+  }, {
+    "Model" : "Matatu",
+    "Price" : 20.000000,
+    "Stock" : 682,
+    "_id" : 7
+  }, {
+    "Model" : "Buggati",
+    "Price" : 2430.000000,
+    "Stock" : 232,
+    "_id" : 8
+  }, {
+    "Model" : "Range Rover",
+    "Price" : 270.000000,
+    "Stock" : 3293,
+    "_id" : 9
+  }, {
+    "Model" : "Subaru",
+    "Price" : 120.000000,
+    "Stock" : 4232,
+    "_id" : 2
+  }]

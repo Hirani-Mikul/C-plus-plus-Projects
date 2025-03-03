@@ -1,0 +1,181 @@
+#pragma once
+#include <iostream>
+#include <mutex>
+#include <iomanip>
+
+/*
+	The application will always wait for user input.
+
+	If the user gives the input, then it returns the input.
+
+	If there are functions that wants to write to the console, then the input operation waits for the console to print everything to the user.
+
+	If multiple functions are writing at the same time, the console should inform all other except the first function to wait.
+
+	Once the buffer is written, it is printed on the main console and next function can write to the buffer.
+
+	If the buffer is empty, the user input is resumed.
+
+*/
+#include <Windows.h>
+
+int key_press() { // not working: F11 (-122, toggles fullscreen)
+	KEY_EVENT_RECORD keyevent;
+	INPUT_RECORD irec;
+	DWORD events;
+	while (true) {
+		ReadConsoleInput(GetStdHandle(STD_INPUT_HANDLE), &irec, 1, &events);
+		if (irec.EventType == KEY_EVENT && ((KEY_EVENT_RECORD&)irec.Event).bKeyDown) {
+			keyevent = (KEY_EVENT_RECORD&)irec.Event;
+			const int ca = (int)keyevent.uChar.AsciiChar;
+			const int cv = (int)keyevent.wVirtualKeyCode;
+			const int key = ca == 0 ? -cv : ca + (ca > 0 ? 0 : 256);
+			switch (key) {
+			case  -16: continue; // disable Shift
+			case  -17: continue; // disable Ctrl / AltGr
+			case  -18: continue; // disable Alt / AltGr
+			case -220: continue; // disable first detection of "^" key (not "^" symbol)
+			case -221: continue; // disable first detection of "`" key (not "`" symbol)
+			case -191: continue; // disable AltGr + "#"
+			case  -52: continue; // disable AltGr + "4"
+			case  -53: continue; // disable AltGr + "5"
+			case  -54: continue; // disable AltGr + "6"
+			case  -12: continue; // disable num block 5 with num lock deactivated
+			case   13: return  10; // enter
+			case  -46: return 127; // delete
+			case  -49: return 251; // ¹
+			case    0: continue;
+			case    1: continue; // disable Ctrl + a (selects all text)
+			case    2: continue; // disable Ctrl + b
+			case    3: continue; // disable Ctrl + c (terminates program)
+			case    4: continue; // disable Ctrl + d
+			case    5: continue; // disable Ctrl + e
+			case    6: continue; // disable Ctrl + f (opens search)
+			case    7: continue; // disable Ctrl + g
+				//case    8: continue; // disable Ctrl + h (ascii for backspace)
+				//case    9: continue; // disable Ctrl + i (ascii for tab)
+			case   10: continue; // disable Ctrl + j
+			case   11: continue; // disable Ctrl + k
+			case   12: continue; // disable Ctrl + l
+				//case   13: continue; // disable Ctrl + m (breaks console, ascii for new line)
+			case   14: continue; // disable Ctrl + n
+			case   15: continue; // disable Ctrl + o
+			case   16: continue; // disable Ctrl + p
+			case   17: continue; // disable Ctrl + q
+			case   18: continue; // disable Ctrl + r
+			case   19: continue; // disable Ctrl + s
+			case   20: continue; // disable Ctrl + t
+			case   21: continue; // disable Ctrl + u
+			case   22: continue; // disable Ctrl + v (inserts clipboard)
+			case   23: continue; // disable Ctrl + w
+			case   24: continue; // disable Ctrl + x
+			case   25: continue; // disable Ctrl + y
+			case   26: continue; // disable Ctrl + z
+			default: return key; // any other ASCII/virtual character
+			}
+		}
+	}
+}
+
+class Console {
+
+public:
+	
+	Console() {}
+
+	Console(const Console&) = delete;
+	Console& operator = (const Console&) = delete;
+
+
+
+public:
+
+	void Write(const char* text, size_t len) {
+	
+		if (!len) return;
+
+		bool eol = text[len - 1] == '\n';
+		std::lock_guard<std::mutex> lock(_mtx);
+
+		// Remove current input echo
+
+		if (size_t size = _prompt.size() + _input.size())
+		{
+			std::cout
+				<< std::setfill('\b') << std::setw(size) << ""
+				<< std::setfill(' ') << std::setw(size) << ""
+				<< std::setfill('\b') << std::setw(size) << "";
+
+		}
+		// Print text
+		std::cout << text;
+
+		if (!eol) std::cout << std::endl;
+
+		std::cout << _prompt << _input << std::flush;
+
+	}
+
+	void Write(const char* text) { Write(text, std::strlen(text)); }
+	void Write(const std::string& text) { Write(text.c_str(), text.size()); }
+
+	std::string Read() {
+		
+		{ // Active prompt
+			std::lock_guard<std::mutex> lock(_mtx);
+			_prompt = "> ";
+			_input.clear();
+
+			std::cout << _prompt << std::flush;
+		}
+
+		enum
+		{
+			Enter = '\n',
+			BackSpc = 127
+		};
+
+		for (;;)
+		{
+			switch (int c = key_press())
+			{
+			case Enter:
+			{
+				std::lock_guard<std::mutex> lock(_mtx);
+				std::string input = _input;
+				_prompt.clear();
+				_input.clear();
+				std::cout << std::endl;
+				return input;
+			} // Unreachable: break;
+			case BackSpc:
+			{
+				std::lock_guard<std::mutex> lock(_mtx);
+				if (_input.empty())
+					break;
+
+				_input.pop_back();
+				std::cout << "\b \b" << std::flush;
+			}
+				break;
+			default:
+			{
+				if (c < ' ' || c >= '\x7f')
+					break;
+
+				std::lock_guard<std::mutex> lock(_mtx);
+				_input += c;
+				std::cout << (char)c << std::flush;
+			}
+				break;
+			}
+		}
+	}
+
+private:
+
+	std::mutex _mtx;
+
+	std::string _prompt;
+	std::string _input;
+};
